@@ -32,5 +32,15 @@ Makefile*
 # QtCreator
 *.autosave
 
+# CMake
+CMakeCache.txt
+CMakeFiles
+cmake_install.cmake
+
 # QtCreator CMake
 CMakeLists.txt.user*
+
+# Build results
+build*
+SimpleCompressionService
+TestClient
