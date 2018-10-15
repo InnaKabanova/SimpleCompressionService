@@ -1,11 +1,13 @@
 cmake_minimum_required(VERSION 2.8)
 
-project(SimpleCompressionService LANGUAGES C)
+project(simple_compr_service LANGUAGES C)
 include_directories(include/)
-add_executable(${PROJECT_NAME} "src/main.c")
+add_executable(${PROJECT_NAME}
+    "src/main.c"
+    "src/utilities.c"
+    "src/server.c")
 
 # TODO
-# 1. Parsing the input parameters
 # 2. Server initialization
 # 2. Pool of worker threads
 # 3. Boss thread -- does the listening and puts the requests into requests queue

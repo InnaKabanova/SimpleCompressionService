@@ -42,5 +42,4 @@ CMakeLists.txt.user*
 
 # Build results
 build*
-SimpleCompressionService
-TestClient
+!build.sh
