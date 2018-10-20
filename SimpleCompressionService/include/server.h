@@ -1,6 +1,6 @@
-#ifndef _SERVER
-#define _SERVER
+#ifndef SERVER
+#define SERVER
 
-void start_server(int port_num);
+void start_server(int port_num, int backlog);
 
-#endif /* _SERVER */
+#endif /* SERVER */

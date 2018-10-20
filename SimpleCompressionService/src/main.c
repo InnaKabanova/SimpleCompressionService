@@ -10,12 +10,12 @@
 int main(int argc, char* argv[])
 {
     // Parse the command line arguments:
-    if(argc != 2)
+    if(2 != argc)
         exit_with_failure("invalid input parameters");
-    else if(!strcmp(argv[1], "-h") || !strcmp(argv[1], "--help"))
+    else if(0 == strcmp(argv[1], "-h") || 0 == strcmp(argv[1], "--help"))
     {
         printf("1. simple_compr_service [port_number]\n");
-        printf("[port_number] -- port to bind the service to.\n");
+        printf("[port_number] -- port for incoming connections.\n");
         printf("2. simple_compr_service --help (or -h)\n");
         exit(EXIT_SUCCESS);
     }
@@ -28,8 +28,8 @@ int main(int argc, char* argv[])
         {
 #ifdef VERBOSE_MAIN
             printf("Creating a server bound to port %i...\n", port_number);
-#endif /*VERBOSE_MAIN*/
-            start_server(port_number);
+#endif /* VERBOSE_MAIN */
+            start_server(port_number, 10);
         }
     }
     return EXIT_SUCCESS;

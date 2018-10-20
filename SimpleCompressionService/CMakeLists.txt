@@ -5,7 +5,9 @@ include_directories(include/)
 add_executable(${PROJECT_NAME}
     "src/main.c"
     "src/utilities.c"
-    "src/server.c")
+    "src/server.c"
+    "src/processor.c")
+target_link_libraries(${PROJECT_NAME} pthread)
 
 # TODO
 # 2. Server initialization
@@ -22,3 +24,5 @@ add_executable(${PROJECT_NAME}
 # -- put the package into responses queue
 # 6. Sender thread -- waits for responses queue to be non-empty, sends the responses
 # back to clients.
+
+
