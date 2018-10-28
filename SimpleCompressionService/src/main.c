@@ -1,11 +1,14 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <signal.h>
 
 #include "utilities.h"
 #include "server.h"
 
 #define VERBOSE_MAIN
+
+void signals_handler(int signum);
 
 int main(int argc, char* argv[])
 {
@@ -33,4 +36,12 @@ int main(int argc, char* argv[])
         }
     }
     return EXIT_SUCCESS;
+}
+
+void signals_handler(int signum)
+{
+    if(signum == SIGINT) // Interrupt, Ctrl-C
+    {
+        // Do nothing.
+    }
 }

@@ -24,5 +24,9 @@ target_link_libraries(${PROJECT_NAME} pthread)
 # -- put the package into responses queue
 # 6. Sender thread -- waits for responses queue to be non-empty, sends the responses
 # back to clients.
+# -----------------------------------------------------------------
+# TODO: pthread_cleanup_push for each worker thread
+# TODO: disable default reaction to SIGINT
+# TODO: cleanup function call as a reaction to SIGKILL, SIGSTOP
 
 

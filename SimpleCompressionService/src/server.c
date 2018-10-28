@@ -13,13 +13,17 @@
 
 #include <pthread.h>
 
-#include <unistd.h>
-
 #define VERBOSE_SERVER
 #define WORKERS_NUM 1
 
 void* accept_requests(void* args);
 void* send_responses(void* args);
+
+struct acceptor_args
+{
+    int passive_socket_descr; // server socket listening for connections
+    const int* still_listening; // current status of the service
+};
 
 // The main thread is the boss thread:
 void start_server(int port_num, int backlog)
@@ -27,7 +31,7 @@ void start_server(int port_num, int backlog)
     // Networking initialization:
     int socket_descr; // socket to listen for incoming connections
     struct sockaddr_in server_addr;
-    struct sockaddr_in client_addr;
+    int listening = 0;
 
     if((socket_descr = socket(AF_INET, SOCK_STREAM, 0)) < 0)
         exit_with_failure("failed to get a socket");
@@ -47,19 +51,18 @@ void start_server(int port_num, int backlog)
 #endif /* VERBOSE_SERVER */
         exit_with_failure("failed to start listening for client connections");
     }
+    listening = 1;
+
+    //----------------------------------------------------------------
 
     // Creating worker threads:
     pthread_t acceptor; // listens for & accepts incoming connections
     pthread_t processors_pool[WORKERS_NUM]; // deal with incoming requests
     pthread_t sender; // sends responses (produced by processor threads) to clients
 
-    // Dummy work (test):
-    FILE* fp_sender = fopen("sender.txt", "w+");
-    FILE* fp_processor = fopen("processor.txt", "w+");
-    FILE* fp_acceptor = fopen("acceptor.txt", "w+");
-
     int i, thread_status;
-    if(thread_status = pthread_create(&sender, NULL, send_responses, (void*)fp_sender))
+    //Start a sender thread:
+    if(thread_status = pthread_create(&sender, NULL, send_responses, NULL))
     {
 #ifdef VERBOSE_SERVER
         printf("ERROR: %i.\n", thread_status);
@@ -73,9 +76,11 @@ void start_server(int port_num, int backlog)
 #endif /* VERBOSE_SERVER */
     }
 
+    // Start processors threads:
     for(i = 0; i < WORKERS_NUM; i++)
     {
-        if(thread_status = pthread_create(&processors_pool[i], NULL, process_requests, (void*)fp_processor))
+        if(thread_status = pthread_create(&processors_pool[i], NULL,
+                                          process_requests, NULL))
         {
 #ifdef VERBOSE_SERVER
             printf("ERROR: %i. Thread #%i.\n", thread_status, i);
@@ -85,12 +90,17 @@ void start_server(int port_num, int backlog)
         else
         {
 #ifdef VERBOSE_SERVER
-            printf("Created a processor thread #%i with ID %lu.\n", i + 1, processors_pool[i]);
+            printf("Created a processor thread #%i with ID %lu.\n", i + 1,
+                   processors_pool[i]);
 #endif /* VERBOSE_SERVER */
         }
     }
 
-    if(thread_status = pthread_create(&acceptor, NULL, accept_requests, (void*)fp_acceptor))
+    // Send an acceptor thread:
+    struct acceptor_args accptr_args = { .passive_socket_descr = socket_descr,
+                                         .still_listening = &listening};
+    if(thread_status = pthread_create(&acceptor, NULL, accept_requests,
+                                      (void*)&accptr_args))
     {
 #ifdef VERBOSE_SERVER
         printf("ERROR: %i.\n", thread_status);
@@ -104,6 +114,8 @@ void start_server(int port_num, int backlog)
 #endif /* VERBOSE_SERVER */
     }
 
+    //----------------------------------------------------------------
+
     // Waiting for user input to terminate the service:
     char buffer[5] = {'s','t','a','r','t'};
     printf("SUCCESS: the service is now running...\n "
@@ -114,39 +126,69 @@ void start_server(int port_num, int backlog)
         printf("\n");
     }
 
+    listening = 0;
+
+    //----------------------------------------------------------------
+
     // Cleanup:
-    pthread_cancel(acceptor);
+    // pthread_cancel(acceptor);
     for(i = 0; i < WORKERS_NUM; i++)
         pthread_cancel(processors_pool[i]);
     pthread_cancel(sender);
-    // TODO: pthread_cleanup_push for each worker thread
-    // TODO: disable default reaction to SIGINT
 
-    // Dummy work (test):
-    fclose(fp_sender);
-    fclose(fp_acceptor);
-    fclose(fp_processor);
 }
 
 void* accept_requests(void* args)
 {
-    // Dummy work:
-    FILE* fp = (FILE*)args;
-    while(1)
+    struct acceptor_args* service_info = (struct acceptor_args*)args;
+    printf("Server socket descr (accept_requests): %i\n", service_info->passive_socket_descr);
+    while(*service_info->still_listening)
     {
-        sleep(1);
-        fputs("ACCEPT ", fp);
+
+
     }
+    printf("Exiting from accept_requests");
 }
 
 void* send_responses(void* args)
 {
-    // Dummy work:
-    FILE* fp = (FILE*)args;
-    while(1)
-    {
-        sleep(1);
-        fputs("SEND  ", fp);
-    }
+
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
