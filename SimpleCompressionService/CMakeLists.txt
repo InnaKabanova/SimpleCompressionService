@@ -1,7 +1,8 @@
 cmake_minimum_required(VERSION 2.8)
 
 project(simple_compr_service LANGUAGES C)
-include_directories(include/)
+include_directories("api/"
+    "src/")
 add_executable(${PROJECT_NAME}
     "src/main.c"
     "src/utilities.c"

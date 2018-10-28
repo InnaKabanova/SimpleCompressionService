@@ -1,17 +1,17 @@
-#include "utilities.h"
-#include "server.h"
-#include "processor.h"
-
 #include <stdio.h>
 #include <string.h>
 #include <errno.h>
+#include <pthread.h>
 
 #include <sys/types.h> // data types used in system calls
 #include <sys/socket.h> // structs for sockets
 #include <netinet/in.h> // consts & structs for Internet domain addresses
 #include <arpa/inet.h>
 
-#include <pthread.h>
+#include "utilities.h"
+#include "server.h"
+#include "processor.h"
+#include "request.h"
 
 #define VERBOSE_SERVER
 #define WORKERS_NUM 1
@@ -21,7 +21,7 @@ void* send_responses(void* args);
 
 struct acceptor_args
 {
-    int passive_socket_descr; // server socket listening for connections
+    int server_socket_descr; // to listen for connections
     const int* still_listening; // current status of the service
 };
 
@@ -41,7 +41,8 @@ void start_server(int port_num, int backlog)
     server_addr.sin_addr.s_addr = INADDR_ANY; // bind to all local interfaces
     server_addr.sin_port = htons(port_num);
 
-    if(bind(socket_descr, (struct sockaddr*)&server_addr, sizeof(server_addr)) < 0)
+    if(bind(socket_descr, (struct sockaddr*)&server_addr,
+            sizeof(server_addr)) < 0)
         exit_with_failure("failed to bind the socket to the address");
 
     if(listen(socket_descr, backlog) < 0)
@@ -97,7 +98,7 @@ void start_server(int port_num, int backlog)
     }
 
     // Send an acceptor thread:
-    struct acceptor_args accptr_args = { .passive_socket_descr = socket_descr,
+    struct acceptor_args accptr_args = { .server_socket_descr = socket_descr,
                                          .still_listening = &listening};
     if(thread_status = pthread_create(&acceptor, NULL, accept_requests,
                                       (void*)&accptr_args))
@@ -131,7 +132,7 @@ void start_server(int port_num, int backlog)
     //----------------------------------------------------------------
 
     // Cleanup:
-    // pthread_cancel(acceptor);
+    pthread_cancel(acceptor);
     for(i = 0; i < WORKERS_NUM; i++)
         pthread_cancel(processors_pool[i]);
     pthread_cancel(sender);
@@ -141,13 +142,42 @@ void start_server(int port_num, int backlog)
 void* accept_requests(void* args)
 {
     struct acceptor_args* service_info = (struct acceptor_args*)args;
-    printf("Server socket descr (accept_requests): %i\n", service_info->passive_socket_descr);
+
+    int new_socket_descr; // for connection with a new client
+    struct sockaddr client_addr;
+    socklen_t client_addr_len = sizeof(client_addr);
+    struct request_header header;
+
     while(*service_info->still_listening)
     {
+        memset((void*)&client_addr, 0, sizeof(client_addr));
+        memset((void*)&header, 0, sizeof(header));
 
+
+        new_socket_descr = accept(service_info->server_socket_descr,
+                                  &client_addr, &client_addr_len);
+        // Each incoming request is received in 2 steps.
+        // 1. Receiving the header:
+        int bytes_received = recv(new_socket_descr, (void*)&header,
+                                  sizeof(header), 0);
+        // Handle errors if any:
+        if(!(bytes_received == sizeof(header)))
+        {
+            // TODO: handle the error
+        }
+        if(header.magic_value != DEFAULT_MAGIC_VALUE)
+        {
+            // TODO: handle the error
+        }
+
+        // 2. Receive payload, which may or may not follow the header
+        // depending on the message type
+        if(header.request_code == COMPRESS)
+        {
+            // TODO: malloc
+        }
 
     }
-    printf("Exiting from accept_requests");
 }
 
 void* send_responses(void* args)
