@@ -1,17 +1,17 @@
-#ifndef COMPRESSION_REQUEST
-#define COMPRESSION_REQUEST
+#ifndef REQUEST_FORMAT
+#define REQUEST_FORMAT
 
 #include <stdint.h>
 
 const int DEFAULT_MAGIC_VALUE = 0x53545259;
 
-// All fields must be in network byte order to be valid.
-struct request_header
+// All data fields must be in network byte order to be valid.
+const struct request_header
 {
-    uint32_t magic_value; // should be equal to DEFAULT_MAGIC_VALUE to be valid
+    const uint32_t magic_value;
     uint16_t payload_length;
     uint16_t request_code;
-} default_request = { .magic_value = DEFAULT_MAGIC_VALUE };
+} template_instance = {.magic_value = DEFAULT_MAGIC_VALUE};
 
 enum REQUEST_CODE
 {
@@ -21,4 +21,4 @@ enum REQUEST_CODE
     COMPRESS = 4 // request some data to be compressed
 };
 
-#endif /* COMPRESSION_REQUEST */
+#endif /* REQUEST_FORMAT */

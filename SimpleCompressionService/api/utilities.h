@@ -1,6 +1,6 @@
-#ifndef _UTILITIES
-#define _UTILITIES
+#ifndef UTILITIES
+#define UTILITIES
 
 void exit_with_failure(const char* msg);
 
-#endif /* _UTILITIES */
+#endif /* UTILITIES */

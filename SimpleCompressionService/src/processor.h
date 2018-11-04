@@ -1,7 +1,6 @@
-#ifndef PROCESSOR
-#define PROCESSOR
+#ifndef REQUEST_PROCESSOR
+#define REQUEST_PROCESSOR
 
 void* process_requests(void* args);
 
-#endif /* PROCESSOR */
-
+#endif /* REQUEST_PROCESSOR */

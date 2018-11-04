@@ -1,0 +1,4 @@
+#ifndef REQUESTS_QUEUE
+#define REQUESTS_QUEUE
+
+#endif /* REQUESTS_QUEUE */

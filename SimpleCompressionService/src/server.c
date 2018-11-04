@@ -20,12 +20,12 @@ void* accept_requests(void* args);
 void* send_responses(void* args);
 
 struct acceptor_args
-{
+{   
     int server_socket_descr; // to listen for connections
     const int* still_listening; // current status of the service
 };
 
-// The main thread is the boss thread:
+// The main/boss thread:
 void start_server(int port_num, int backlog)
 {
     // Networking initialization:
@@ -77,7 +77,7 @@ void start_server(int port_num, int backlog)
 #endif /* VERBOSE_SERVER */
     }
 
-    // Start processors threads:
+    // Start processor threads:
     for(i = 0; i < WORKERS_NUM; i++)
     {
         if(thread_status = pthread_create(&processors_pool[i], NULL,
@@ -97,7 +97,7 @@ void start_server(int port_num, int backlog)
         }
     }
 
-    // Send an acceptor thread:
+    // Start an acceptor thread:
     struct acceptor_args accptr_args = { .server_socket_descr = socket_descr,
                                          .still_listening = &listening};
     if(thread_status = pthread_create(&acceptor, NULL, accept_requests,
@@ -143,40 +143,31 @@ void* accept_requests(void* args)
 {
     struct acceptor_args* service_info = (struct acceptor_args*)args;
 
-    int new_socket_descr; // for connection with a new client
-    struct sockaddr client_addr;
-    socklen_t client_addr_len = sizeof(client_addr);
-    struct request_header header;
+    struct sockaddr new_client_addr; // to know where to send a response
+    socklen_t client_addr_size = sizeof(struct sockaddr);
+    struct request_header new_request_header;
+    size_t request_header_size = sizeof(struct request_header);
+    int new_socket_descr; // for active connection with a new client
 
     while(*service_info->still_listening)
     {
-        memset((void*)&client_addr, 0, sizeof(client_addr));
-        memset((void*)&header, 0, sizeof(header));
-
+        memset((void*)&new_client_addr, 0, client_addr_size);
+        memset((void*)&new_request_header, 0, request_header_size);
 
         new_socket_descr = accept(service_info->server_socket_descr,
-                                  &client_addr, &client_addr_len);
+                                  &new_client_addr, &client_addr_size);
+
         // Each incoming request is received in 2 steps.
-        // 1. Receiving the header:
-        int bytes_received = recv(new_socket_descr, (void*)&header,
-                                  sizeof(header), 0);
+        // 1. Receiving a header:
+        ssize_t bytes_received = recv(new_socket_descr, (void*)&new_request_header,
+                                  request_header_size, 0);
         // Handle errors if any:
-        if(!(bytes_received == sizeof(header)))
+        if(bytes_received != request_header_size ||
+           new_request_header.magic_value != DEFAULT_MAGIC_VALUE)
         {
-            // TODO: handle the error
+            // TODO: skip the whole package and data that follows
+            // TODO: learn how to do regulation
         }
-        if(header.magic_value != DEFAULT_MAGIC_VALUE)
-        {
-            // TODO: handle the error
-        }
-
-        // 2. Receive payload, which may or may not follow the header
-        // depending on the message type
-        if(header.request_code == COMPRESS)
-        {
-            // TODO: malloc
-        }
-
     }
 }
 

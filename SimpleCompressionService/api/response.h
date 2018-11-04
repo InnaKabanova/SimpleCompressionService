@@ -1,0 +1,6 @@
+#ifndef RESPONSE_FORMAT
+#define RESPONSE_FORMAT
+
+
+
+#endif /* RESPONSE_FORMAT */
