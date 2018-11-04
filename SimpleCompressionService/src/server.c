@@ -167,8 +167,7 @@ void* accept_requests(void* args)
         if(bytes_received != request_header_size ||
            new_request_header.magic_value != DEFAULT_MAGIC_VALUE)
         {
-            // TODO: skip the whole package and data that follows
-            // TODO: learn how to do regulation
+            // TODO
         }
     }
 }

@@ -14,20 +14,3 @@ add_executable(
 target_link_libraries(
     ${PROJECT_NAME}
     pthread)
-
-# -----------------------------------------------------------------
-# TODO -- November 4
-# Code review
-# Write test client
-# Write requests parsing & error handling
-
-# -----------------------------------------------------------------
-# TODO -- General
-# Queue of internal requests
-# Signal handling (SIGINT). Cleanup when SIGKILL, SIGSTOP.
-
-# -----------------------------------------------------------------
-# TODO: avoid spurious wakeups
-# TODO: pthread_cleanup_push for each worker thread
-# TODO: disable default reaction to SIGINT
-# TODO: cleanup function call as a reaction to SIGKILL, SIGSTOP

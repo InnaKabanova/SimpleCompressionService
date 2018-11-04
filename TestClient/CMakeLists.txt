@@ -8,12 +8,6 @@ add_executable(
     ${PROJECT_NAME}
     "src/main.c")
 
-# TODO: November 4
-# Receive & parse service IP addr and port as input parameters
-# Connect to the service
-# Send several simple requests (VALID ones)
-# Send several simple requests (INVALID ones)
-
 # TODO: General
 # 1. Option to read compression data from a file; split that data into
 # packages; send it to service; receive the compressed data back as a
