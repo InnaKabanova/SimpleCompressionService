@@ -2,7 +2,6 @@
 #include <string.h>
 #include <errno.h>
 #include <pthread.h>
-
 #include <sys/types.h> // data types used in system calls
 #include <sys/socket.h> // structs for sockets
 #include <netinet/in.h> // consts & structs for Internet domain addresses
@@ -156,6 +155,9 @@ void* accept_requests(void* args)
 
         new_socket_descr = accept(service_info->server_socket_descr,
                                   &new_client_addr, &client_addr_size);
+
+        printf("SUCCESS (got a client connection)");
+        break;
 
         // Each incoming request is received in 2 steps.
         // 1. Receiving a header:
