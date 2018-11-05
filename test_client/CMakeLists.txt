@@ -2,7 +2,8 @@ cmake_minimum_required(VERSION 2.8)
 
 project(test_client LANGUAGES C)
 include_directories(
-    "../SimpleCompressionService/api/"
+    "../lib_utilities/"
+    "../simple_compr_service/api/"
     "src/")
 add_executable(
     ${PROJECT_NAME}
