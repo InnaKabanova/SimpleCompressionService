@@ -5,14 +5,15 @@ include_directories(
     "../lib_utilities/"
     "../simple_compr_service/api/"
     "src/")
+link_directories(
+    "../../lib_utilities/build/"
+    )
 add_executable(
     ${PROJECT_NAME}
-    "src/main.c")
-
-# TODO: General
-# 1. Option to read compression data from a file; split that data into
-# packages; send it to service; receive the compressed data back as a
-# response; assemble and deserialize the data back to its initial state.
-# 2. Option to bombard the service with requests (load testing).
-# 3. A script to spawn multiple TestClient processes to load test the service.
+    "src/main.c"
+    )
+target_link_libraries(
+    ${PROJECT_NAME}
+    utilities
+    )
 

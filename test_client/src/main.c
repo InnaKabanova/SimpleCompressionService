@@ -7,13 +7,7 @@
 #include <netinet/in.h> // consts & structs for Internet domain addresses
 #include <netdb.h>
 
-// #include "utilities.h"
-// TODO: make the "utilities" shared library
-void exit_with_failure(const char* msg)
-{
-    printf("ERROR: %s. Exiting.\n", msg);
-    exit(EXIT_FAILURE);
-}
+#include "utilities.h"
 
 #define VERBOSE_TEST_CLIENT
 
