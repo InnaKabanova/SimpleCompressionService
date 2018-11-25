@@ -21,8 +21,12 @@ int main(int argc, char* argv[])
     struct hostent* serv_addr_info; // TODO: who is responsible for freeing this?
 
     //----------------------------------------------------------------
-
     // Parse the command line arguments:
+
+    if(argc < 2)
+        exit_with_failure("not enough parameters. Hint: use --help");
+    else if(argc > 3)
+        exit_with_failure("too much parameters. Hint: use --help");
 
     // 1. If help was requested, give it away:
     if(0 == strcmp(argv[1], "-h") || 0 == strcmp(argv[1], "--help"))
@@ -33,11 +37,6 @@ int main(int argc, char* argv[])
         printf("2. test_client --help (or -h)\n");
         exit(EXIT_SUCCESS);
     }
-    // In all other cases, less than 3 args (incl. the name of the program)
-    // are considered to be invalid program input:
-    else if(argc < 3)
-        exit_with_failure("not enough parameters. Hint: use --help");
-
     // 2. Test the input parameters:
     serv_port_num = atoi(argv[2]);
     if(0 == serv_port_num) // conversion failed
@@ -47,7 +46,6 @@ int main(int argc, char* argv[])
         exit_with_failure("could not find the target service's host");
 
     //----------------------------------------------------------------
-
     // Try to connect:
     int socket_descr;
     connect_to_service(&socket_descr, &serv_port_num, serv_addr_info);
