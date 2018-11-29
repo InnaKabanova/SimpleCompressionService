@@ -13,7 +13,7 @@ add_executable(
     "src/main.c"
     "src/server.c"
     "src/requests_queue.c"
-    "src/processor.c")
+    "src/worker.c")
 target_link_libraries(
     ${PROJECT_NAME}
     pthread

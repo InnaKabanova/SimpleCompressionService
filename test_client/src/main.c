@@ -26,7 +26,7 @@ int main(int argc, char* argv[])
     if(argc < 2)
         exit_with_failure("not enough parameters. Hint: use --help");
     else if(argc > 3)
-        exit_with_failure("too much parameters. Hint: use --help");
+        exit_with_failure("too many parameters. Hint: use --help");
 
     // 1. If help was requested, give it away:
     if(0 == strcmp(argv[1], "-h") || 0 == strcmp(argv[1], "--help"))
