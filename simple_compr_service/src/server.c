@@ -24,19 +24,73 @@ struct acceptor_args
 
 void initialize_networking(const char* port_num, int* sock_descr,
                            const int backlog);
-void start_worker_threads();
+void wait_for_term_input(const char* cmd);
 
 //--------------------------------------------------------------------
 // The boss routine/thread:
 //--------------------------------------------------------------------
 void start_server(const char* port_num, const int backlog)
 {
-    int sock_descr; // socket to listen for incoming connections
+    int sock_descr;
+    // TODO: consider making a pthread conditional variable out of this:
     int listening = 0;
 
+    // Worker threads:
+    pthread_t acceptor; // listens for & accepts incoming connections
+    pthread_t processors_pool[PROCESSORS_NUM]; // deal with incoming requests
+    pthread_t sender; // sends responses (produced by processor threads) to clients
+
+    //----------------------------------------------------------------
+    // Start listening for incoming connections:
+    //----------------------------------------------------------------
     initialize_networking(port_num, &sock_descr, backlog);
     listening = 1;
 
+    //----------------------------------------------------------------
+    // Launch incoming connections/requests processing:
+    //----------------------------------------------------------------
+    int i;
+    struct acceptor_args accptr_args = { .server_socket_descr = sock_descr,
+                                         .still_listening = &listening};
+
+    if(0 != pthread_create(&sender, NULL, send_responses, NULL))
+        exit_with_failure("failed to create a sender thread");
+#ifdef DEBUGGING
+    else
+        printf("Created a sender thread with ID %lu.\n", sender);
+#endif
+    for(i = 0; i < PROCESSORS_NUM; i++)
+    {
+        if(0 != pthread_create(&processors_pool[i], NULL, process_requests,
+                               NULL))
+            exit_with_failure("failed to create a processor thread");
+#ifdef DEBUGGING
+        else
+            printf("Created a processor thread #%i with ID %lu.\n", i + 1,
+                   processors_pool[i]);
+#endif
+    }
+    if(0 != pthread_create(&acceptor, NULL, accept_requests,
+                           (void*)&accptr_args))
+        exit_with_failure("failed to create an acceptor thread");
+#ifdef DEBUGGING
+    else
+        printf("Created an acceptor thread with ID %lu.\n", acceptor);
+#endif
+
+    //----------------------------------------------------------------
+    // Wait for user input to terminate the service:
+    //----------------------------------------------------------------
+    wait_for_term_input("exit");
+    listening = 0;
+
+    //----------------------------------------------------------------
+    // Make all the necessary cleanup before termination:
+    //----------------------------------------------------------------
+    pthread_cancel(acceptor);
+    for(i = 0; i < PROCESSORS_NUM; i++)
+        pthread_cancel(processors_pool[i]);
+    pthread_cancel(sender);
 }
 
 //--------------------------------------------------------------------
@@ -77,17 +131,24 @@ void initialize_networking(const char* port_num, int* sock_descr,
     freeaddrinfo(serv_info);
 
     if(NULL == i)
-        exit_with_failure("failed to bind to local host's IP address");
+        exit_with_failure("failed to bind to the local host's IP address");
 
-    if(0 > listen(*sock_descr, backlog))
+    if(-1 == listen(*sock_descr, backlog))
         exit_with_failure("failed to start listening for client "
                           "connections");
 }
 
 //--------------------------------------------------------------------
 
-void start_worker_threads()
+void wait_for_term_input(const char* cmd)
 {
-
+    char buffer[5] = {'s','t','a','r','t'};
+    printf("SUCCESS: the service is now running...\n "
+           "Type 'exit' to terminate it.\n");
+    while(strcmp((const char*)&buffer, cmd) != 0)
+    {
+        fgets(buffer, 5, stdin);
+        printf("\n");
+    }
 }
 
