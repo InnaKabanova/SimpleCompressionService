@@ -13,7 +13,7 @@
 #include "server.h"
 #include "worker.h"
 
-#define DEBUGGING
+#define DEBUGGING 1 // true/false
 #define PROCESSORS_NUM 1
 
 struct acceptor_args
@@ -101,13 +101,13 @@ void initialize_networking(const char* port_num, int* sock_descr,
     struct addrinfo hints;
     struct addrinfo* serv_info;
 
-    int status, counter = 1;
+    int status;
     struct addrinfo* i;
 
     memset((void*)&hints, 0, sizeof(hints));
     // The server will listen on the current host's IP address:[port_num]:
     hints.ai_family = AF_UNSPEC; // both IPv4 and IPv6
-    hints.ai_socktype = SOCK_STREAM; // TCP stream sockets
+    hints.ai_socktype = SOCK_STREAM; // TCP
     hints.ai_flags = AI_PASSIVE; // use the IP address of the local host
 
     if((status = getaddrinfo(NULL, port_num, &hints, &serv_info)) != 0)
@@ -116,11 +116,18 @@ void initialize_networking(const char* port_num, int* sock_descr,
     for(i = serv_info; i != NULL; i = i->ai_next)
     {
 #ifdef DEBUGGING
-        print_addrinfo(i, "Possible bind", 1);
+        print_addrinfo(i, "Possible bind", DEBUGGING ? 1 : 0);
 #endif
         if(-1 == (*sock_descr = socket(i->ai_family, i->ai_socktype,
                                       i->ai_protocol)))
             continue;
+
+        status = setsockopt(*sock_descr, SOL_SOCKET, SO_REUSEADDR,
+                            &(int){ 1 }, sizeof(int));
+#ifdef DEBUGGING
+        if(status < 0)
+            printf("setsockopt(SO_REUSEADDR) failed");
+#endif
         if(-1 == bind(*sock_descr, i->ai_addr, i->ai_addrlen))
         {
             close(*sock_descr);

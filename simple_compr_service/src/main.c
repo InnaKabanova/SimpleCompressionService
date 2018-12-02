@@ -27,7 +27,7 @@ int main(int argc, char* argv[])
         printf("2. simple_compr_service --help (or -h)\n");
         exit(EXIT_SUCCESS);
     }
-    else if(0 == atoi(argv[1])) // conversion from string to int failed
+    else if(0 == atoi(argv[1])) // conversion failed
         exit_with_failure("invalid port number provided");
 
     //----------------------------------------------------------------
