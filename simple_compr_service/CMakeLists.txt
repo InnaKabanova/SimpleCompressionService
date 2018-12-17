@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 2.8)
 
 project(simple_compr_service LANGUAGES C)
 include_directories(
-    "../lib_utilities/"
+    "../lib_utilities/include/"
     "api/"
     "src/")
 link_directories(

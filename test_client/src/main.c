@@ -25,7 +25,12 @@ int main(int argc, char* argv[])
     else if(argc > 3)
         exit_with_failure("too many parameters. Hint: use --help");
 
-    if(0 == strcmp(argv[1], "-h") || 0 == strcmp(argv[1], "--help"))
+    // Evaluate the second parameter:
+    int help_requested =
+            0 == strcmp(argv[1], "-h") || 0 == strcmp(argv[1], "--help");
+    if(2 == argc && !help_requested)
+        exit_with_failure("not enough parameters. Hint: use --help");
+    else if(help_requested)
     {
         printf("1. test_client [serv-ip-addr] [serv-port-num]\n");
         printf("[serv-ip-addr] -- IP address of the target compression "
@@ -37,6 +42,7 @@ int main(int argc, char* argv[])
         printf("2. test_client --help (or -h)\n");
         exit(EXIT_SUCCESS);
     }
+
     if(0 == atoi(argv[2])) // conversion failed
         exit_with_failure("invalid service port number provided");
 
