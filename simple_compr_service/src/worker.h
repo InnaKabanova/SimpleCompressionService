@@ -1,8 +1,8 @@
-#ifndef REQUEST_PROCESSOR
-#define REQUEST_PROCESSOR
+#ifndef SCS_REQUEST_PROCESSOR
+#define SCS_REQUEST_PROCESSOR
 
 void* accept_requests(void* args);
 void* process_requests(void* args);
 void* send_responses(void* args);
 
-#endif /* REQUEST_PROCESSOR */
+#endif /* SCS_REQUEST_PROCESSOR */

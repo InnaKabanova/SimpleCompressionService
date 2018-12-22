@@ -1,4 +1,6 @@
-#ifndef REQUESTS_QUEUE
-#define REQUESTS_QUEUE
+#ifndef SCS_REQUESTS_QUEUE
+#define SCS_REQUESTS_QUEUE
 
-#endif /* REQUESTS_QUEUE */
+// TODO
+
+#endif /* SCS_REQUESTS_QUEUE */

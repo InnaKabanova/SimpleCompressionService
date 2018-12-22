@@ -4,8 +4,8 @@
 
 #include <pthread.h>
 
-#include <sys/types.h> // data types used in system calls
-#include <sys/socket.h> // structs for sockets
+#include <sys/types.h>
+#include <sys/socket.h>
 #include <netdb.h>
 #include <arpa/inet.h>
 
@@ -13,7 +13,7 @@
 #include "server.h"
 #include "worker.h"
 
-#define DEBUGGING 1 // true/false
+#define DEBUGGING 1
 #define PROCESSORS_NUM 1
 
 struct acceptor_args

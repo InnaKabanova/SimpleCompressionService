@@ -2,11 +2,10 @@ cmake_minimum_required(VERSION 2.8)
 
 project(test_client LANGUAGES C)
 include_directories(
-    "../lib_utilities/include/"
-    "../simple_compr_service/api/"
+    "../lib_common/include/"
     "src/")
 link_directories(
-    "../../lib_utilities/build/"
+    "../../lib_common/build/"
     )
 add_executable(
     ${PROJECT_NAME}
@@ -15,5 +14,5 @@ add_executable(
     )
 target_link_libraries(
     ${PROJECT_NAME}
-    utilities
+    scscommon
     )

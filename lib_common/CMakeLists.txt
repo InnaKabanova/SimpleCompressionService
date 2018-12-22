@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 2.8)
 
-project(utilities LANGUAGES C)
+project(scscommon LANGUAGES C)
 include_directories(
     "include/"
     )
