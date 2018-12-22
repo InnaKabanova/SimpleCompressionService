@@ -1,7 +1,10 @@
+#include "utilities.h"
+#include "server.h"
+#include "worker.h"
+
 #include <stdio.h>
 #include <string.h>
 #include <errno.h>
-
 #include <pthread.h>
 
 #include <sys/types.h>
@@ -9,18 +12,8 @@
 #include <netdb.h>
 #include <arpa/inet.h>
 
-#include "utilities.h"
-#include "server.h"
-#include "worker.h"
-
 #define DEBUGGING 1
 #define PROCESSORS_NUM 1
-
-struct acceptor_args
-{   
-    int server_socket_descr; // to listen for connections
-    const int* still_listening; // current status of the service
-};
 
 void initialize_networking(const char* port_num, int* sock_descr,
                            const int backlog);

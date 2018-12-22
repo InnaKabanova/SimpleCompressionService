@@ -1,10 +1,10 @@
+#include "utilities.h"
+#include "server.h"
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <signal.h>
-
-#include "utilities.h"
-#include "server.h"
 
 #define BACKLOG 10 // max. num of pending connections
 

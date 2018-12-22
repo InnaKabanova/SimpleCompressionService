@@ -11,8 +11,10 @@ add_executable(
     ${PROJECT_NAME}
     "src/main.c"
     "src/networking.c"
+    "src/sender.c"
     )
 target_link_libraries(
     ${PROJECT_NAME}
+    pthread
     scscommon
     )

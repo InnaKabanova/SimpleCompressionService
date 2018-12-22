@@ -1,5 +1,5 @@
-#ifndef REQUEST_FORMAT
-#define REQUEST_FORMAT
+#ifndef LIBCOMMON_REQUEST_FORMAT
+#define LIBCOMMON_REQUEST_FORMAT
 
 #include <stdint.h>
 
@@ -21,4 +21,4 @@ enum REQUEST_CODE
     COMPRESS = 4 // request some data to be compressed
 };
 
-#endif /* REQUEST_FORMAT */
+#endif /* LIBCOMMON_REQUEST_FORMAT */

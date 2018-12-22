@@ -1,6 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include <sys/types.h>
+#include <sys/socket.h>
 #include <arpa/inet.h>
 
 #include "utilities.h"
@@ -47,4 +49,23 @@ int print_addrinfo(struct addrinfo* info, const char* tag,
            tag, info->ai_family, info->ai_socktype,
            info->ai_protocol, dest_ptr, info->ai_addrlen);
     return 1;
+}
+
+int send_all(int sock_descr, char* buff, int* buff_size)
+{
+    int bytes_sent = 0;
+    int bytes_left = *buff_size;
+    int n;
+
+    while(bytes_sent < *buff_size)
+    {
+        n = send(sock_descr, buff + bytes_sent, bytes_left, 0);
+        if(-1 == n) break;
+
+        bytes_sent += n;
+        bytes_left -= n;
+    }
+
+    *buff_size = bytes_sent;
+    return -1 != n;
 }

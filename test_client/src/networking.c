@@ -46,4 +46,3 @@ int try_to_connect(const char* node, const char* port_num)
     freeaddrinfo(serv_info);
     return sock_descr;
 }
-

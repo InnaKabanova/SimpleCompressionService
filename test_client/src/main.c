@@ -1,14 +1,21 @@
+#include "networking.h"
+#include "sender.h"
+#include "utilities.h"
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <pthread.h>
 
-#include "utilities.h"
-#include "networking.h"
+#define DEBUGGING
 
 int main(int argc, char* argv[])
 {
     const char* node;
-    int sock_descr;
+    int sock_descr = -1;
+    int senders_required = 1;
+
+    int i;
 
     //----------------------------------------------------------------
     // Parse the command line arguments and check their validity:
@@ -50,6 +57,30 @@ int main(int argc, char* argv[])
     sock_descr = try_to_connect(node, argv[2]);
     if(-1 == sock_descr)
         exit_with_failure("could not connect to a specified service");
+
+    // TODO: read configuration file with filepaths into dynamic
+    // filename_array + create a dynamic array of sender threads
+    // with random sleep time between sends.
+    // for(i = 0; i < senders_required; i++)
+    // {
+    // }
+    // TODO: consider quering of number of CPU cores to determine the
+    // max. number of sender threads working at once
+    // TODO: create sender threads detached or joinable?
+
+    pthread_t test_sender;
+    if(0 != pthread_create(&test_sender, NULL, send_requests, NULL))
+        exit_with_failure("failed to create a sender thread");
+#ifdef DEBUGGING
+    else
+        printf("Created a sender thread with ID %lu.\n", test_sender);
+#endif
+
+
+
+
+
+
 
     return EXIT_SUCCESS;
 }
