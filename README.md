@@ -12,7 +12,7 @@ TODO
 TODO
 
 ## Building the components
-Run the 'build.sh' script in the root of the project:
+Run the 'build.sh' script which is located in the root of the project:
 
 * './build.sh 1' (or './build.sh s') -- build the 'simple_compr_service' binary
 * './build.sh 2' (or './build.sh t') -- build the 'test_client' binary
