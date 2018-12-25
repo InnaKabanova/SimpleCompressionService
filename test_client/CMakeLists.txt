@@ -12,6 +12,7 @@ add_executable(
     "src/main.c"
     "src/networking.c"
     "src/sender.c"
+    "src/config.c"
     )
 target_link_libraries(
     ${PROJECT_NAME}

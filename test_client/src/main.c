@@ -1,6 +1,7 @@
 #include "networking.h"
 #include "sender.h"
 #include "utilities.h"
+#include "config.h"
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -54,28 +55,21 @@ int main(int argc, char* argv[])
     //----------------------------------------------------------------
     // Spawn client threads once a service connection is established:
     //----------------------------------------------------------------
-    sock_descr = try_to_connect(node, argv[2]);
-    if(-1 == sock_descr)
-        exit_with_failure("could not connect to a specified service");
+//    sock_descr = try_to_connect(node, argv[2]);
+//    if(-1 == sock_descr)
+//        exit_with_failure("could not connect to a specified service");
 
-    // TODO: read configuration file with filepaths into dynamic
-    // filename_array + create a dynamic array of sender threads
-    // with random sleep time between sends.
-    // for(i = 0; i < senders_required; i++)
-    // {
-    // }
-    // TODO: consider quering of number of CPU cores to determine the
-    // max. number of sender threads working at once
-    // TODO: create sender threads detached or joinable?
 
-    pthread_t test_sender;
-    if(0 != pthread_create(&test_sender, NULL, send_requests, NULL))
-        exit_with_failure("failed to create a sender thread");
-#ifdef DEBUGGING
-    else
-        printf("Created a sender thread with ID %lu.\n", test_sender);
-#endif
+//    // TODO: create sender threads detached or joinable?
+//    pthread_t test_sender;
+//    if(0 != pthread_create(&test_sender, NULL, send_requests, NULL))
+//        exit_with_failure("failed to create a sender thread");
+//#ifdef DEBUGGING
+//    else
+//        printf("Created a sender thread with ID %lu.\n", test_sender);
+//#endif
 
+    parse_config_list();
 
 
 
@@ -84,3 +78,28 @@ int main(int argc, char* argv[])
 
     return EXIT_SUCCESS;
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
