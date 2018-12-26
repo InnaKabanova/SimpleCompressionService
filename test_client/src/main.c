@@ -53,12 +53,28 @@ int main(int argc, char* argv[])
         exit_with_failure("invalid service port number provided");
 
     //----------------------------------------------------------------
-    // Spawn client threads once a service connection is established:
+    // Spawn client threads:
     //----------------------------------------------------------------
+    char* files_string = parse_config_list();
+    const char delim[2] = " ";
+    char* token = strtok(files_string, delim);
+    while(token != NULL)
+    {
+        printf( "%s\n", token);
+        token = strtok(NULL, delim);
+    }
+
+
+    free(files_string);
+
+
+
+    return EXIT_SUCCESS;
+}
+
 //    sock_descr = try_to_connect(node, argv[2]);
 //    if(-1 == sock_descr)
 //        exit_with_failure("could not connect to a specified service");
-
 
 //    // TODO: create sender threads detached or joinable?
 //    pthread_t test_sender;
@@ -68,38 +84,4 @@ int main(int argc, char* argv[])
 //    else
 //        printf("Created a sender thread with ID %lu.\n", test_sender);
 //#endif
-
-    parse_config_list();
-
-
-
-
-
-
-    return EXIT_SUCCESS;
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 

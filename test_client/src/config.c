@@ -6,45 +6,31 @@
 
 #define DEBUGGING
 
-void parse_config_list()
+char* parse_config_list()
 {
     FILE* f_read;
     long int buff_size;
-    char* configs = NULL;
+    char* files_string = NULL;
 
     f_read = fopen("../config/request_files", "r");
     if(!f_read)
-        exit_with_failure("failed to open the configs list\n");
+        exit_with_failure("failed to open the files list\n");
 
     fseek(f_read, 0L, SEEK_END);
     buff_size = ftell(f_read);
 #ifdef DEBUGGING
-    printf("Size of the configs list file: %li\n", buff_size);
+    printf("Size of 'request_files': %li\n", buff_size);
 #endif
     fseek(f_read, 0L, SEEK_SET);
 
-    configs = (char*)malloc(sizeof(char) * buff_size);
-    if(configs == NULL)
-    exit_with_failure("failed to allocate memory for configs list");
+    files_string = (char*)malloc(sizeof(char) * buff_size);
+    if(NULL == files_string)
+        exit_with_failure("failed to allocate memory for files list");
+    fread((void*)files_string, buff_size, 1, f_read);
+#ifdef DEBUGGING
+    printf("String extracted from 'request_files': %s.\n", files_string);
+#endif
 
-// TODO:
-//    char str[80] = "This is - www.tutorialspoint.com - website";
-//       const char s[2] = "-";
-//       char *token;
-
-//       /* get the first token */
-//       token = strtok(str, s);
-
-//       /* walk through other tokens */
-//       while( token != NULL ) {
-//          printf( " %s\n", token );
-
-//          token = strtok(NULL, s);
-//       }
-
-
-    free(configs);
     fclose(f_read);
-
-
+    return files_string;
 }
