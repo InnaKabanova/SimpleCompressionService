@@ -9,14 +9,13 @@
 #include <pthread.h>
 
 #define DEBUGGING
+// Number of threads that read data from files, form requests based on
+// that data and send those requests to the connected compression service:
+#define SENDERS_NUM 6
 
 int main(int argc, char* argv[])
 {
-    const char* node;
-    int sock_descr = -1;
-    int senders_required = 1;
-
-    int i;
+    const char* node; // address of a target compression service
 
     //----------------------------------------------------------------
     // Parse the command line arguments and check their validity:
@@ -53,35 +52,48 @@ int main(int argc, char* argv[])
         exit_with_failure("invalid service port number provided");
 
     //----------------------------------------------------------------
-    // Spawn client threads:
+    // Spawn request-sending threads:
     //----------------------------------------------------------------
-    char* files_string = parse_config_list();
-    const char delim[2] = " ";
+    pthread_t senders_pool[SENDERS_NUM];
+    struct sender_args args_pool[SENDERS_NUM];
+    int pool_ind = 0;
+    char* files_string;
+
+    parse_config_list(&files_string);
+    const char delim[2] = "\n";
     char* token = strtok(files_string, delim);
+
     while(token != NULL)
     {
-        printf( "%s\n", token);
+#ifdef DEBUGGING
+        printf( "Creating a sender thread to read '%s'\n", token);
+#endif
+        args_pool[pool_ind].sock_descr = 42;
+        args_pool[pool_ind].filepath = token;
+        if(0 != pthread_create(&senders_pool[pool_ind], NULL,
+                               send_requests, &args_pool[pool_ind]))
+        {
+#ifdef DEBUGGING
+            printf( "Failed to create a sender thread\n");
+#endif
+            break;
+        }
+#ifdef DEBUGGING
+        else
+            printf("Created a sender thread with ID %lu.\n",
+                   senders_pool[pool_ind]);
+#endif
+        pool_ind++;
+        if(pool_ind >= SENDERS_NUM) break;
         token = strtok(NULL, delim);
     }
 
-
+    //----------------------------------------------------------------
+    // Wait for sender threads termination and then cleanup:
+    //----------------------------------------------------------------
+    for(int i = 0; i < SENDERS_NUM; i++)
+        pthread_join(senders_pool[i], NULL);
     free(files_string);
-
-
 
     return EXIT_SUCCESS;
 }
-
-//    sock_descr = try_to_connect(node, argv[2]);
-//    if(-1 == sock_descr)
-//        exit_with_failure("could not connect to a specified service");
-
-//    // TODO: create sender threads detached or joinable?
-//    pthread_t test_sender;
-//    if(0 != pthread_create(&test_sender, NULL, send_requests, NULL))
-//        exit_with_failure("failed to create a sender thread");
-//#ifdef DEBUGGING
-//    else
-//        printf("Created a sender thread with ID %lu.\n", test_sender);
-//#endif
-
