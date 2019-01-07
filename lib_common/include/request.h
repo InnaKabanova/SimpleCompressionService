@@ -15,10 +15,10 @@ const struct request_header
 
 enum REQUEST_CODE
 {
-    PING = 1, // check if the service is operating normally
-    GET_STATS = 2, // receive internal statistics of the service
-    RESET_STATS = 3, // reset internal statistics of the service
-    COMPRESS = 4 // request some data to be compressed
+    PING = 1, // checks if a service is operating normally
+    GET_STATS = 2, // requests internal statistics of a service
+    RESET_STATS = 3, // resets internal statistics of a service
+    COMPRESS = 4 // requests some data to be compressed
 };
 
 #endif /* LIBCOMMON_REQUEST_FORMAT */
