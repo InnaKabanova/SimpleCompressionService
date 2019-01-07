@@ -27,12 +27,4 @@ void parse_req_data(const char* filepath)
 //    if(-1 == sock_descr)
 //        exit_with_failure("could not connect to a specified service");
 
-//    // TODO: create sender threads detached or joinable?
-//    pthread_t test_sender;
-//    if(0 != pthread_create(&test_sender, NULL, send_requests, NULL))
-//        exit_with_failure("failed to create a sender thread");
-//#ifdef DEBUGGING
-//    else
-//        printf("Created a sender thread with ID %lu.\n", test_sender);
-//#endif
 

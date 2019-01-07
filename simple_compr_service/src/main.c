@@ -1,17 +1,28 @@
 #include "utilities.h"
 #include "server.h"
+#include "worker.h"
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <pthread.h>
 #include <signal.h>
 
-#define BACKLOG 10 // max. num of pending connections
+#define DEBUGGING
+// Max. number of pending connections:
+#define BACKLOG 10
+// Number of worker threads that process incoming requests:
+#define PROCESSORS_NUM 3
 
+void wait_for_term_input(const char* cmd);
 void signals_handler(int signum);
 
-int main(int argc, char* argv[])
+static int listening = 0;
+
+int main(int argc, char* argv[]) // The boss thread.
 {
+    int sock_descr = -1;
+
     //----------------------------------------------------------------
     // Parse the command line arguments and check their validity:
     //----------------------------------------------------------------
@@ -31,10 +42,63 @@ int main(int argc, char* argv[])
         exit_with_failure("invalid port number provided");
 
     //----------------------------------------------------------------
-    // Start the service:
+    // Start the networking:
     //----------------------------------------------------------------
-    printf("Binding to port %s...\n", argv[1]);
-    start_server(argv[1], BACKLOG);
+#ifdef DEBUGGING
+    printf("Binding to port %s ...\n", argv[1]);
+#endif
+    start_server(&sock_descr, argv[1], BACKLOG);
+    listening = 1;
+
+    //----------------------------------------------------------------
+    // Create worker threads, launch incoming connections/requests
+    // processing:
+    //----------------------------------------------------------------
+    pthread_t acceptor; // listens for & accepts incoming connections
+    pthread_t processors_pool[PROCESSORS_NUM]; // deal with incoming requests
+    pthread_t sender; // sends responses (produced by processor threads) to clients
+
+    struct acceptor_args accptr_args = { .server_socket_descr = sock_descr,
+                                         .still_listening = &listening};
+
+    if(0 != pthread_create(&sender, NULL, send_responses, NULL))
+        exit_with_failure("failed to create a sender thread");
+#ifdef DEBUGGING
+    else
+        printf("Created a sender thread with ID %lu.\n", sender);
+#endif
+    for(int i = 0; i < PROCESSORS_NUM; i++)
+    {
+        if(0 != pthread_create(&processors_pool[i], NULL, process_requests,
+                               NULL))
+            exit_with_failure("failed to create a processor thread");
+#ifdef DEBUGGING
+        else
+            printf("Created a processor thread #%i with ID %lu.\n", i + 1,
+                   processors_pool[i]);
+#endif
+    }
+    if(0 != pthread_create(&acceptor, NULL, accept_requests,
+                           (void*)&accptr_args))
+        exit_with_failure("failed to create an acceptor thread");
+#ifdef DEBUGGING
+    else
+        printf("Created an acceptor thread with ID %lu.\n", acceptor);
+#endif
+
+    //----------------------------------------------------------------
+    // Wait for user input to terminate the service:
+    //----------------------------------------------------------------
+    wait_for_term_input("exit");
+    listening = 0;
+
+    //----------------------------------------------------------------
+    // Make all the necessary cleanup before termination:
+    //----------------------------------------------------------------
+//    pthread_cancel(acceptor);
+//    for(int i = 0; i < PROCESSORS_NUM; i++)
+//        pthread_cancel(processors_pool[i]);
+//    pthread_cancel(sender);
 
     return EXIT_SUCCESS;
 }
@@ -44,5 +108,17 @@ void signals_handler(int signum)
     if(signum == SIGINT) // Interrupt, Ctrl-C
     {
         // Do nothing.
+    }
+}
+
+void wait_for_term_input(const char* cmd)
+{
+    char buffer[5] = {'s','t','a','r','t'};
+    printf("SUCCESS: the service is now running...\n "
+           "Type 'exit' to terminate it.\n");
+    while(strcmp((const char*)&buffer, cmd) != 0)
+    {
+        fgets(buffer, 5, stdin);
+        printf("\n");
     }
 }

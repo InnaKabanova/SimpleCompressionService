@@ -93,6 +93,7 @@ int main(int argc, char* argv[])
     //----------------------------------------------------------------
     for(int i = 0; i < SENDERS_NUM; i++)
         pthread_join(senders_pool[i], NULL);
+
     free(files_string);
 
     return EXIT_SUCCESS;
