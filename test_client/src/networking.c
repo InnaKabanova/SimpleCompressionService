@@ -8,7 +8,7 @@
 #include <sys/socket.h>
 #include <netdb.h>
 
-#define DEBUGGING 1
+#define TC_NETWORKING_DEBUGGING 1
 
 int try_to_connect(const char* node, const char* port_num)
 {
@@ -29,8 +29,9 @@ int try_to_connect(const char* node, const char* port_num)
     // Loop through address lookup results and connect to the first we can:
     for(i = serv_info; i != NULL; i = i->ai_next)
     {
-#ifdef DEBUGGING
-        print_addrinfo(i, "Possible target host", DEBUGGING ? 1 : 0);
+#ifdef TC_NETWORKING_DEBUGGING
+        print_addrinfo(i, "Possible target host",
+                       TC_NETWORKING_DEBUGGING ? 1 : 0);
 #endif
         if(-1 == (sock_descr = socket(i->ai_family, i->ai_socktype,
                                       i->ai_protocol)))

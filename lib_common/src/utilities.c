@@ -19,7 +19,7 @@ int print_addrinfo(struct addrinfo* info, const char* tag,
     if(info == NULL || info->ai_family == AF_UNSPEC)
     {
         if(print_error)
-            printf("ERROR: print_addrinfo: invalid input data.\n");
+            printf("ERROR: print_addrinfo: invalid arguments.\n");
         return 0;
     }
 
@@ -46,7 +46,7 @@ int print_addrinfo(struct addrinfo* info, const char* tag,
 
     printf("%s: ai_family: %i | ai_socktype: %i | "
            "ai_protocol: %i | ai_addr: %s | ai_addrlen: %i\n",
-           tag, info->ai_family, info->ai_socktype,
+           (tag == NULL ? "" : tag), info->ai_family, info->ai_socktype,
            info->ai_protocol, dest_ptr, info->ai_addrlen);
     return 1;
 }

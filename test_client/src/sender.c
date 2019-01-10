@@ -1,30 +1,38 @@
 #include "sender.h"
 #include "utilities.h"
+#include "networking.h"
 
 #include <stdlib.h>
-
 #include <stdio.h>
 #include <pthread.h>
+
+#define TC_SENDER_DEBUGGING
 
 void parse_req_data(const char* filepath);
 
 void* send_requests(void* args)
 {
     struct sender_args* req_data = (struct sender_args*)args;
-    printf("From %lu. File: '%s'.\n", pthread_self(), req_data->filepath);
+    // TODO: do the checks for input parameters here
+
+#ifdef TC_SENDER_DEBUGGING
+    printf("From %lu | File: '%s'.\n", pthread_self(), req_data->filepath);
+#endif
+
+    int sock_descr = try_to_connect(req_data->node, req_data->port_num);
+    if(-1 == sock_descr)
+    {
+        printf("From %lu | Everything's bad.\n", pthread_self());
+    }
+    else
+    {
+        printf("From %lu | Successfuly connected.\n", pthread_self());
+    }
+
 }
 
 void parse_req_data(const char* filepath)
 {
     // TODO
 }
-
-
-//if(req_data->sock_descr <= 0 || req_data->filepath == NULL)
-//    return NULL; // TODO: return with an error code
-
-//    sock_descr = try_to_connect(node, argv[2]);
-//    if(-1 == sock_descr)
-//        exit_with_failure("could not connect to a specified service");
-
 

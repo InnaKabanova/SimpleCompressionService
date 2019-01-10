@@ -20,7 +20,7 @@ void exit_with_failure(const char* msg);
  * @param tag: optional text to print before the parameters.
  * @param print_error: whether to print error message to stdout in case
  * the function's internal error occurs.
- * @return 1 -- success, 0 -- fail.
+ * @return 1 -- success, 0 -- failure.
  */
 int print_addrinfo(struct addrinfo* info, const char* tag,
                    int print_error);
@@ -32,7 +32,7 @@ int print_addrinfo(struct addrinfo* info, const char* tag,
  * @param buff: buffer containing the data to send.
  * @param buff_size: pointer to an int containing the buffer's size in
  * bytes.
- * @return 1 -- success, 0 --fail.
+ * @return 1 -- success, 0 -- failure.
  */
 int send_all(int sock_descr, char* buff, int* buff_size);
 

@@ -1,11 +1,12 @@
 #ifndef TEST_CLIENT_SENDER
 #define TEST_CLIENT_SENDER
 
-struct sender_args
+typedef struct sender_args
 {
-    int sock_descr;
     const char* filepath;
-};
+    const char* node;
+    const char* port_num;
+} sender_args_t;
 
 void* send_requests(void* args);
 

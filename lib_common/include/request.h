@@ -3,15 +3,21 @@
 
 #include <stdint.h>
 
-const int DEFAULT_MAGIC_VALUE = 0x53545259;
+#define DEFAULT_MAGIC_VALUE 0x53545259
 
-// All data fields must be in network byte order to be valid.
-const struct request_header
+/**
+ * @brief request_header. All data fields must be in network byte order
+ * to be valid.
+ */
+typedef struct request_header
 {
     const uint32_t magic_value;
     uint16_t payload_length;
     uint16_t request_code;
-} template_instance = {.magic_value = DEFAULT_MAGIC_VALUE};
+} request_header_t;
+
+static const request_header_t template_request_header =
+{.magic_value = DEFAULT_MAGIC_VALUE};
 
 enum REQUEST_CODE
 {
