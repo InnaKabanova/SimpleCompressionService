@@ -11,8 +11,9 @@
 
 void* accept_requests(void* args)
 {
-    struct acceptor_args* server_info =
-            (struct acceptor_args*) args;
+    if(!args)
+        pthread_exit(NULL);
+    acceptor_args_t* server_info = (acceptor_args_t*)args;
     if(!server_info->still_listening)
         pthread_exit(NULL); // TODO: exit & report an error here
 

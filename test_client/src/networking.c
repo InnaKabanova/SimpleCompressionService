@@ -7,6 +7,7 @@
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netdb.h>
+#include <pthread.h>
 
 #define TC_NETWORKING_DEBUGGING 1
 
@@ -24,7 +25,11 @@ int try_to_connect(const char* node, const char* port_num)
     hints.ai_socktype = SOCK_STREAM; // TCP stream sockets
 
     if((status = getaddrinfo(node, port_num, &hints, &serv_info)) != 0)
-        exit_with_failure(gai_strerror(status));
+    {
+#ifdef TC_NETWORKING_DEBUGGING
+        printf("From %lu | ERROR: %s.\n", pthread_self(), gai_strerror(status));
+#endif
+    }
 
     // Loop through address lookup results and connect to the first we can:
     for(i = serv_info; i != NULL; i = i->ai_next)

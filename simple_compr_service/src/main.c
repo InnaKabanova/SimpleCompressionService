@@ -50,7 +50,6 @@ int main(int argc, char* argv[])
 #endif
     if(0 == start_server(&sock_descr, argv[1], BACKLOG))
         exit_with_failure("failed to initialize networking");
-
     listening = 1;
 
     //----------------------------------------------------------------
@@ -61,8 +60,9 @@ int main(int argc, char* argv[])
     pthread_t processors_pool[PROCESSORS_NUM]; // deal with incoming requests
     pthread_t sender; // sends responses (produced by processor threads) to clients
 
-    struct acceptor_args accptr_args = { .server_socket_descr = sock_descr,
-                                         .still_listening = &listening};
+    acceptor_args_t accptr_args = { .server_socket_descr = sock_descr,
+                                    .still_listening = &listening,
+                                    .exit_status = OK};
 
     if(0 != pthread_create(&sender, NULL, send_responses, NULL))
         exit_with_failure("failed to create a sender thread");

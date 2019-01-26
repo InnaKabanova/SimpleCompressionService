@@ -10,15 +10,15 @@
 
 int extract_config(char** files_string)
 {
-    FILE* f_read;
+    FILE* config_file;
     long int buff_size;
 
 #ifdef TC_CONFIG_DEBUGGING
     printf("Trying to read the config file...\n");
 #endif
 
-    f_read = fopen(CONFIG_FILE_PATH, "r");
-    if(!f_read)
+    config_file = fopen(CONFIG_FILE_PATH, "r");
+    if(!config_file)
     {
 #ifdef TC_CONFIG_DEBUGGING
         printf("ERROR: failed to open the file. Errno: %d.\n", errno);
@@ -27,9 +27,9 @@ int extract_config(char** files_string)
         return 0;
     }
 
-    fseek(f_read, 0L, SEEK_END);
-    buff_size = ftell(f_read);
-    fseek(f_read, 0L, SEEK_SET);
+    fseek(config_file, 0L, SEEK_END);
+    buff_size = ftell(config_file);
+    fseek(config_file, 0L, SEEK_SET);
 #ifdef TC_CONFIG_DEBUGGING
     printf("Size of the config file: %li\n", buff_size);
 #endif
@@ -49,8 +49,8 @@ int extract_config(char** files_string)
         return 0;
     }
 
-    fread((void*)(*files_string), buff_size, 1, f_read);
-    fclose(f_read);
+    fread((void*)(*files_string), buff_size, 1, config_file);
+    fclose(config_file);
 #ifdef TC_CONFIG_DEBUGGING
     printf("String extracted from the config file:\n%s.\n", *files_string);
 #endif

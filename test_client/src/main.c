@@ -78,6 +78,7 @@ int main(int argc, char* argv[])
         args_pool[pool_ind].node = node;
         args_pool[pool_ind].port_num = argv[2];
         args_pool[pool_ind].filepath = token;
+        args_pool[pool_ind].exit_status = OK;
         int ret = pthread_create(&senders_pool[pool_ind], NULL,
                                  send_requests, &args_pool[pool_ind]);
 #ifdef TC_MAIN_DEBUGGING
@@ -102,6 +103,7 @@ int main(int argc, char* argv[])
         int thread_retval;
         int ret = pthread_join(senders_pool[i], (void*)&thread_retval);
 #ifdef TC_MAIN_DEBUGGING
+        // TODO: check & print retval here
         if(ret != 0)
             printf("ERROR: failed to join a sender thread with ID %lu."
                    " Errno: %d.\n", senders_pool[i], ret);
