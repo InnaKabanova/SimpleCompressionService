@@ -62,9 +62,14 @@ int main(int argc, char* argv[])
 
     acceptor_args_t accptr_args = { .server_socket_descr = sock_descr,
                                     .still_listening = &listening,
-                                    .exit_status = OK};
+                                    .exit_status = OTHER_ERROR};
+    processor_args_t prcssr_args_pool[PROCESSORS_NUM];
+    for(int i = 0; i < PROCESSORS_NUM; i++)
+        prcssr_args_pool[i].exit_status = OTHER_ERROR;
+    sender_args_t sndr_args = {.exit_status = OTHER_ERROR};
 
-    if(0 != pthread_create(&sender, NULL, send_responses, NULL))
+    if(0 != pthread_create(&sender, NULL, send_responses,
+                           (void*)&sndr_args))
         exit_with_failure("failed to create a sender thread");
 #ifdef SCS_MAIN_DEBUGGING
     else
@@ -73,7 +78,7 @@ int main(int argc, char* argv[])
     for(int i = 0; i < PROCESSORS_NUM; i++)
     {
         if(0 != pthread_create(&processors_pool[i], NULL, process_requests,
-                               NULL))
+                               (void*)&prcssr_args_pool[i]))
             exit_with_failure("failed to create a processor thread");
 #ifdef SCS_MAIN_DEBUGGING
         else
@@ -102,6 +107,8 @@ int main(int argc, char* argv[])
     for(int i = 0; i < PROCESSORS_NUM; i++)
         pthread_join(processors_pool[i], NULL);
     pthread_join(sender, NULL);
+    // TODO: printf threads' return codes with consideration of
+    // thread cancellation.
 
     return EXIT_SUCCESS;
 }

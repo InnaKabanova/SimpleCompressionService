@@ -7,64 +7,69 @@
 
 #include <pthread.h>
 
-#define SCS_WORKER_DEBUGGING
+#define SCS_ACCEPTOR_DEBUGGING
+#define SCS_PROCESSOR_DEBUGGING
+#define SCS_SENDER_DEBUGGING
 
 void* accept_requests(void* args)
 {
     if(!args)
         pthread_exit(NULL);
-    acceptor_args_t* server_info = (acceptor_args_t*)args;
-    if(!server_info->still_listening)
-        pthread_exit(NULL); // TODO: exit & report an error here
-
-    int clients_connected = 0;
-    while(server_info->still_listening)
+    acceptor_args_t* thread_io = (acceptor_args_t*)args;
+    if(!thread_io->still_listening)
     {
-#ifdef SCS_WORKER_DEBUGGING
-        printf("Accepting... %d\n", clients_connected + 1); // TO REMOVE
-#endif
-        internal_request_t new_request =
-        {.header = template_request_header};
+        thread_io->exit_status = OTHER_ERROR;
+        pthread_exit((void*)(&thread_io->exit_status));
+    }
+
+    while(thread_io->still_listening)
+    {
+        scs_internal_request_t new_request; // TODO: on heap
         new_request.client_addr_len = sizeof(new_request.client_addr);
 
-        int conn_socket = accept(server_info->server_socket_descr,
+        int conn_socket = accept(thread_io->server_socket_descr,
                           (struct sockaddr*)(&new_request.client_addr),
                           &new_request.client_addr_len);
         if(-1 == conn_socket)
         {
-#ifdef SCS_WORKER_DEBUGGING
+#ifdef SCS_ACCEPTOR_DEBUGGING
             printf("Error accepting connection on the socket %d\n",
-                   server_info->server_socket_descr);
+                   thread_io->server_socket_descr);
 #endif
         }
         else
         {
-#ifdef SCS_WORKER_DEBUGGING
+#ifdef SCS_ACCEPTOR_DEBUGGING
             printf("Accepted connection on the socket %d. Obtained "
-                   "a new socket: %d\n", server_info->server_socket_descr,
+                   "a new socket: %d\n", thread_io->server_socket_descr,
                    conn_socket);
-
-            // TO REMOVE:
-            shutdown(conn_socket, 2);
 #endif
         }
-        // TO REMOVE:
-        clients_connected++;
-        if(clients_connected == 6) break;
     }
 
-    shutdown(server_info->server_socket_descr, 2);
-    // TODO: exit & report SUCCESS here
+    shutdown(thread_io->server_socket_descr, 2);
+    thread_io->exit_status = OK;
+    pthread_exit((void*)(&thread_io->exit_status));
 }
 
 void* process_requests(void* args)
 {
-    // TODO
+    if(!args)
+        pthread_exit(NULL);
+    processor_args_t* thread_io = (processor_args_t*)args;
+
+    thread_io->exit_status = OK;
+    pthread_exit((void*)(&thread_io->exit_status));
 }
 
 void* send_responses(void* args)
 {
-    // TODO
+    if(!args)
+        pthread_exit(NULL);
+    sender_args_t* thread_io = (sender_args_t*)args;
+
+    thread_io->exit_status = OK;
+    pthread_exit((void*)(&thread_io->exit_status));
 }
 
 

@@ -4,8 +4,10 @@
 typedef enum sender_exit_status
 {
     OK,
-    CONFIG_ERROR,
+    CONFIG_FILE_ERROR,
+    CONFIG_PARSING_ERROR,
     CONNECTION_ERROR,
+    OTHER_ERROR
 } sender_exit_status_t;
 
 typedef struct sender_args
