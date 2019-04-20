@@ -97,6 +97,9 @@ int main(int argc, char* argv[])
     //----------------------------------------------------------------
     // Wait for user input to terminate the service:
     //----------------------------------------------------------------
+
+    // TODO: Another blocking function here.
+    // Implement boss + workers synchronization.
     wait_for_term_input("exit");
     listening = 0;
 
@@ -124,7 +127,7 @@ void signals_handler(int signum)
 void wait_for_term_input(const char* cmd)
 {
     char buffer[5] = {'s','t','a','r','t'};
-    printf("SUCCESS: the service is now running...\n "
+    printf("SUCCESS: the service is now running...\n"
            "Type 'exit' to terminate it.\n");
     while(strcmp((const char*)&buffer, cmd) != 0)
     {

@@ -100,20 +100,19 @@ static sender_exit_status_t parse_req_data
         return CONFIG_FILE_ERROR;
     }
 
-    // Test data, TO REMOVE:
-    request = (tc_internal_request_t*)malloc(sizeof(tc_internal_request_t));
-    request->header.magic_value = DEFAULT_MAGIC_VALUE;
-    request->header.payload_length = 0;
-    request->header.request_code = 1;
-    request->payload = NULL;
-    request->next_request = (tc_internal_request_t*)malloc(sizeof(tc_internal_request_t));
-    tc_internal_request_t* request_2 = request->next_request;
-    request_2->header.magic_value = DEFAULT_MAGIC_VALUE;
-    request_2->header.payload_length = 5;
-    request_2->header.request_code = 4;
-    request_2->payload = malloc(sizeof(request_2->header.payload_length));
-    strncpy(request_2->payload, "test", request_2->header.payload_length);
-    request_2->next_request = NULL;
+//    request = (tc_internal_request_t*)malloc(sizeof(tc_internal_request_t));
+//    request->header.magic_value = DEFAULT_MAGIC_VALUE;
+//    request->header.payload_length = 0;
+//    request->header.request_code = 1;
+//    request->payload = NULL;
+//    request->next_request = (tc_internal_request_t*)malloc(sizeof(tc_internal_request_t));
+//    tc_internal_request_t* request_2 = request->next_request;
+//    request_2->header.magic_value = DEFAULT_MAGIC_VALUE;
+//    request_2->header.payload_length = 5;
+//    request_2->header.request_code = 4;
+//    request_2->payload = malloc(sizeof(request_2->header.payload_length));
+//    strncpy(request_2->payload, "test", request_2->header.payload_length);
+//    request_2->next_request = NULL;
 
 // TODO: implement the real config file parsing instead of hardcoding
 // the requests

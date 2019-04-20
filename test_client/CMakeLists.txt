@@ -14,6 +14,9 @@ add_executable(
     "src/sender.c"
     "src/config.c"
     )
+add_compile_options(
+    -O0
+    )
 target_link_libraries(
     ${PROJECT_NAME}
     pthread
