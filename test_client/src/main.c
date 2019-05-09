@@ -60,12 +60,12 @@ int main(int argc, char* argv[])
         exit_with_failure("invalid service port number provided");
 
     //----------------------------------------------------------------
-    // Spawn request-sending threads:
+    // Spawn requests-sending threads:
     //----------------------------------------------------------------
-    // 1 requests file is processed by 1 worker thread.
+    // 1 file with requests is processed by 1 worker thread.
     // Max. number of worker threads at a time is limited by
     // MAX_SENDERS_NUM.
-    // Number of requests files is not limited by the implementation.
+    // Number of files with requests is not limited by the implementation.
     char* filepathes = NULL;
     if(0 == get_filepathes(&filepathes))
         exit_with_failure("failed to read the files list");

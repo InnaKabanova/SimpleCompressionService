@@ -4,8 +4,7 @@
 typedef enum sender_exit_status
 {
     OK,
-    CONFIG_FILE_ERROR,
-    CONFIG_PARSING_ERROR,
+    REQUESTS_FILE_ERROR,
     CONNECTION_ERROR,
     OTHER_ERROR
 } sender_exit_status_t;
