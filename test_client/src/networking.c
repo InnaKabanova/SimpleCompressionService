@@ -9,7 +9,7 @@
 #include <netdb.h>
 #include <pthread.h>
 
-#define TC_NETWORKING_DEBUGGING 1
+#define TC_NETWORKING_DBG 1
 
 int try_to_connect(const char* node, const char* port_num)
 {
@@ -26,7 +26,7 @@ int try_to_connect(const char* node, const char* port_num)
 
     if((status = getaddrinfo(node, port_num, &hints, &serv_info)) != 0)
     {
-#ifdef TC_NETWORKING_DEBUGGING
+#ifdef TC_NETWORKING_DBG
         printf("From %lu | ERROR: %s.\n", pthread_self(), gai_strerror(status));
 #endif
     }
@@ -34,9 +34,9 @@ int try_to_connect(const char* node, const char* port_num)
     // Loop through address lookup results and connect to the first we can:
     for(i = serv_info; i != NULL; i = i->ai_next)
     {
-#ifdef TC_NETWORKING_DEBUGGING
+#ifdef TC_NETWORKING_DBG
         print_addrinfo(i, "Possible target host",
-                       TC_NETWORKING_DEBUGGING ? 1 : 0);
+                       TC_NETWORKING_DBG ? 1 : 0);
 #endif
         if(-1 == (sock_descr = socket(i->ai_family, i->ai_socktype,
                                       i->ai_protocol)))

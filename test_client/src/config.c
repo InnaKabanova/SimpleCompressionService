@@ -7,10 +7,15 @@
 #include <pthread.h>
 #include <errno.h>
 
-#define TC_CONFIG_EXTRACT_CONTENTS_DEBUGGING
-#define TC_CONFIG_FILES_LIST_DEBUGGING
+// Print errors when extracting contents of any config file:
+#define TC_CONFIG_EXTRACTION_DBG
+// Print debug info when parsing FILES_LIST:
+#define TC_CONFIG_FILES_LIST_DBG
+// Print contents of FILES_LIST if successfully extracted:
 #define TC_CONFIG_FILES_LIST_CONTENTS
-#define TC_CONFIG_REQUESTS_FILE_DEBUGGING
+// Print debug info when parsing any file with requests:
+#define TC_CONFIG_REQUESTS_FILE_DBG
+// Print contents of any file with requests if successfully extracted:
 #define TC_CONFIG_REQUESTS_FILE_CONTENTS
 
 char* extract_contents(const char* filepath)
@@ -19,7 +24,7 @@ char* extract_contents(const char* filepath)
     FILE* handle = fopen(filepath, "r");
     if(NULL == handle)
     {
-#ifdef TC_CONFIG_EXTRACT_CONTENTS_DEBUGGING
+#ifdef TC_CONFIG_EXTRACTION_DBG
         printf("ERROR: failed to open file '%s'. Errno: %d.\n",
                filepath, errno);
 #endif
@@ -31,20 +36,20 @@ char* extract_contents(const char* filepath)
     fseek(handle, 0L, SEEK_SET);
     if(0 == contents_len)
     {
-#ifdef TC_CONFIG_EXTRACT_CONTENTS_DEBUGGING
+#ifdef TC_CONFIG_EXTRACTION_DBG
         printf("ERROR: file '%s' is empty.\n", filepath);
 #endif
         return 0;
     }
     else if(-1L == contents_len)
     {
-#ifdef TC_CONFIG_EXTRACT_CONTENTS_DEBUGGING
+#ifdef TC_CONFIG_EXTRACTION_DBG
         printf("ERROR: failed to read '%s'. Errno: %d.\n",
                filepath, errno);
 #endif
         return 0;
     }
-#ifdef TC_CONFIG_EXTRACT_CONTENTS_DEBUGGING
+#ifdef TC_CONFIG_EXTRACTION_DBG
     printf("Size of '%s': %li\n", filepath, contents_len);
 #endif
 
@@ -59,13 +64,13 @@ int get_filepathes(char** files_string)
 {
     if(NULL == files_string || NULL != *files_string)
     {
-#ifdef TC_CONFIG_FILES_LIST_DEBUGGING
+#ifdef TC_CONFIG_FILES_LIST_DBG
         printf("Files list processing | ERROR: bad argument.\n");
 #endif
         return 0;
     }
 
-#ifdef TC_CONFIG_FILES_LIST_DEBUGGING
+#ifdef TC_CONFIG_FILES_LIST_DBG
         printf("Files list processing | Extracting.\n");
 #endif
     *files_string = extract_contents(FILES_LIST_PATH);
@@ -83,14 +88,14 @@ int get_requests(const char* filepath,
 {
     if(NULL == requests_chain || NULL != *requests_chain)
     {
-#ifdef TC_CONFIG_REQUESTS_FILE_DEBUGGING
+#ifdef TC_CONFIG_REQUESTS_FILE_DBG
         printf("From %lu | '%s' | ERROR: bad argument.\n",
                pthread_self(), filepath);
 #endif
         return 0;
     }
 
-#ifdef TC_CONFIG_REQUESTS_FILE_DEBUGGING
+#ifdef TC_CONFIG_REQUESTS_FILE_DBG
         printf("From %lu | '%s' | Extracting.\n",
                pthread_self(), filepath);
 #endif

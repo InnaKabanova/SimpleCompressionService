@@ -7,7 +7,7 @@
 #include <string.h>
 #include <pthread.h>
 
-#define TC_MAIN_DEBUGGING
+#define TC_MAIN_DBG
 
 // Max. number of worker threads that simultaneously read data from
 // files, deserialize those data into requests and send those requests
@@ -76,7 +76,7 @@ int main(int argc, char* argv[])
     token = strtok(filepathes, delim);
     while(NULL != token)
     {
-#ifdef TC_MAIN_DEBUGGING
+#ifdef TC_MAIN_DBG
         printf( "Creating a worker thread to process '%s'.\n", token);
 #endif
         args_pool[pool_ind].filepath = token;
@@ -85,7 +85,7 @@ int main(int argc, char* argv[])
         args_pool[pool_ind].exit_status = OTHER_ERROR;
         int ret = pthread_create(&senders_pool[pool_ind], NULL,
                                  send_requests, &args_pool[pool_ind]);
-#ifdef TC_MAIN_DEBUGGING
+#ifdef TC_MAIN_DBG
         if(0 == ret)
             printf("Created a sender thread with ID %lu.\n",
                    senders_pool[pool_ind]);
@@ -115,7 +115,7 @@ int join_senders(unsigned int num)
     for(unsigned int i = 0; i < num; i++)
     {
         int ret = pthread_join(senders_pool[i], NULL);
-#ifdef TC_MAIN_DEBUGGING
+#ifdef TC_MAIN_DBG
         if(0 == ret)
             printf("Thread %lu joined. Exit status: %d.\n", senders_pool[i],
                    args_pool[i].exit_status);

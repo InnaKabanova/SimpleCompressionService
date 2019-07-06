@@ -9,7 +9,7 @@
 #include <pthread.h>
 #include <errno.h>
 
-#define TC_SENDER_DEBUGGING
+#define TC_SENDER_DBG
 
 void* send_requests(void* args)
 {
@@ -25,7 +25,7 @@ void* send_requests(void* args)
 
     if(0 == get_requests(thread_io->filepath, &requests_chain))
     {
-#ifdef TC_SENDER_DEBUGGING
+#ifdef TC_SENDER_DBG
         printf("From %lu | ERROR: failed to get requests from "
                "config file '%s'.\n", pthread_self(), thread_io->filepath);
 #endif
@@ -36,7 +36,7 @@ void* send_requests(void* args)
     sock_descr = try_to_connect(thread_io->node, thread_io->port_num);
     if(-1 == sock_descr)
     {
-#ifdef TC_SENDER_DEBUGGING
+#ifdef TC_SENDER_DBG
         printf("From %lu | ERROR: failed to connect to the service "
                "%s on port %s.\n", pthread_self(), thread_io->node,
                thread_io->port_num);
@@ -44,7 +44,7 @@ void* send_requests(void* args)
         thread_io->exit_status = CONNECTION_ERROR;
         pthread_exit((void*)(&thread_io->exit_status));
     }
-#ifdef TC_SENDER_DEBUGGING
+#ifdef TC_SENDER_DBG
         printf("From %lu | Successfuly connected to the service.\n",
                pthread_self());
 #endif
