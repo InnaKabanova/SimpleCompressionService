@@ -7,15 +7,15 @@
 #include <pthread.h>
 #include <errno.h>
 
-// Print errors when extracting contents of any config file:
+// Print errors when extracting contents of any file:
 #define TC_CONFIG_EXTRACTION_DBG
-// Print debug info when parsing FILES_LIST:
+// Print debug info when reading FILES_LIST:
 #define TC_CONFIG_FILES_LIST_DBG
-// Print contents of FILES_LIST if successfully extracted:
+// Print contents of FILES_LIST (if successfully extracted):
 #define TC_CONFIG_FILES_LIST_CONTENTS
-// Print debug info when parsing any file with requests:
+// Print debug info when reading any file with serialized requests:
 #define TC_CONFIG_REQUESTS_FILE_DBG
-// Print contents of any file with requests if successfully extracted:
+// Print contents of any file with requests (if successfully extracted):
 #define TC_CONFIG_REQUESTS_FILE_CONTENTS
 
 char* extract_contents(const char* filepath)
@@ -71,14 +71,14 @@ int get_filepathes(char** files_string)
     }
 
 #ifdef TC_CONFIG_FILES_LIST_DBG
-        printf("Files list processing | Extracting.\n");
+        printf("Files list processing | Extracting contents.\n");
 #endif
-    *files_string = extract_contents(FILES_LIST_PATH);
+    *files_string = extract_contents(FILES_LIST);
     if(NULL == *files_string)
         return 0;
 
 #ifdef TC_CONFIG_FILES_LIST_CONTENTS
-    printf("Files list contents:\n%s\n", *files_string);
+    printf("Contents of the files list:\n%s\n", *files_string);
 #endif
     return 1;
 }
@@ -86,7 +86,7 @@ int get_filepathes(char** files_string)
 int get_requests(const char* filepath,
                  tc_internal_request_t** requests_chain)
 {
-    if(NULL == requests_chain || NULL != *requests_chain)
+    if(!filepath || !requests_chain || NULL != *requests_chain)
     {
 #ifdef TC_CONFIG_REQUESTS_FILE_DBG
         printf("From %lu | '%s' | ERROR: bad argument.\n",
@@ -96,37 +96,74 @@ int get_requests(const char* filepath,
     }
 
 #ifdef TC_CONFIG_REQUESTS_FILE_DBG
-        printf("From %lu | '%s' | Extracting.\n",
-               pthread_self(), filepath);
+    printf("From %lu | '%s' | Extracting contents.\n",
+           pthread_self(), filepath);
 #endif
     char* requests_string = extract_contents(filepath);
     if(NULL == requests_string)
+    {
         return 0;
-
+    }
 #ifdef TC_CONFIG_REQUESTS_FILE_CONTENTS
-    printf("From %lu | '%s' contents: \n%s\n",
+    printf("From %lu | Contents of '%s': \n%s\n",
            pthread_self(), filepath, requests_string);
 #endif
 
-//    char* token = NULL;
-//    const char delim[2] = "\n";
-//    token = strtok(requests_string, delim);
-//    while(NULL != token)
-//    {
-//        printf("From %lu | Token: '%s'\n", pthread_self(), token);
-//        token = strtok(NULL, delim);
-//    }
+    int ret = 0;
+    unsigned int requests_num = 0;
+    tc_internal_request_t* first = NULL;
+    tc_internal_request_t* last = NULL;
+    char* token = NULL;
+    char* context;
+    const char delim[2] = "\n";
 
-    /*
-     *  Positive cases:
-     *
-        token \n
-        if(token's len == 1) simple request
-        else
-            take the 1st byte, write it as RC
-            ignore the whitespaces after the first byte
-        Assume the rest of the token is a payload
-    */
+    // Keep trying to create a first request until valid one is
+    // available or there are no more tokens to process.
+    token = strtok_r(requests_string, delim, &context);
+    if(NULL == token)
+        goto exit;
+    do
+    {
+#ifdef TC_CONFIG_REQUESTS_FILE_CONTENTS
+        printf("From %lu | '%s' | Token: '%s'\n",
+               pthread_self(), filepath, token);
+#endif
+        first = create_request(token);
+        if(NULL == (token = strtok_r(NULL, delim, &context))) break;
+    }
+    while(NULL == first);
+    if(NULL == first)
+        goto exit;
+    else
+    {
+        requests_num++;
+        requests_chain = &first;
+        last = first;
+        ret = 1;
+    }
 
-    return 1;
+    // Process next tokens, if any:
+    while(NULL != token)
+    {
+#ifdef TC_CONFIG_REQUESTS_FILE_CONTENTS
+        printf("From %lu | '%s' | Token: '%s'\n",
+               pthread_self(), filepath, token);
+#endif
+        tc_internal_request_t* new = create_request(token);
+        if(NULL != new)
+        {
+            last->next_request = new;
+            last = new;
+            requests_num++;
+        }
+        token = strtok_r(NULL, delim, &context);
+    }
+
+exit:
+#ifdef TC_CONFIG_REQUESTS_FILE_DBG
+    printf("From %lu | '%s' | Valid requests created: %d\n",
+           pthread_self(), filepath, requests_num);
+#endif
+    free(requests_string);
+    return ret;
 }

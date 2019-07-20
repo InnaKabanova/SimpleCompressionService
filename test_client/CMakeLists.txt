@@ -13,9 +13,12 @@ add_executable(
     "src/networking.c"
     "src/sender.c"
     "src/config.c"
+    "src/internal_request.c"
     )
 add_compile_options(
     -O0
+    -Wall
+    -Wextra
     )
 target_link_libraries(
     ${PROJECT_NAME}

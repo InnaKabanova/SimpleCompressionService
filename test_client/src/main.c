@@ -71,9 +71,10 @@ int main(int argc, char* argv[])
         exit_with_failure("failed to read the files list");
 
     char* token = NULL;
+    char* context;
     const char delim[2] = "\n";
     unsigned int pool_ind = 0;
-    token = strtok(filepathes, delim);
+    token = strtok_r(filepathes, delim, &context);
     while(NULL != token)
     {
 #ifdef TC_MAIN_DBG
@@ -95,7 +96,7 @@ int main(int argc, char* argv[])
                    senders_pool[pool_ind]);
 #endif
         pool_ind++;
-        token = strtok(NULL, delim);
+        token = strtok_r(NULL, delim, &context);
         if(pool_ind == MAX_SENDERS_NUM)
         {
             join_senders(pool_ind);
