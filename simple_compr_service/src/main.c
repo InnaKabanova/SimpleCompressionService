@@ -1,12 +1,13 @@
 #include "utilities.h"
 #include "server.h"
-#include "worker.h"
+#include "acceptor.h"
+#include "processor.h"
+#include "sender.h"
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <pthread.h>
-#include <signal.h>
 
 #define SCS_MAIN_DEBUGGING
 
@@ -62,11 +63,11 @@ int main(int argc, char* argv[])
 
     acceptor_args_t accptr_args = { .server_socket_descr = sock_descr,
                                     .still_listening = &listening,
-                                    .exit_status = OTHER_ERROR};
+                                    .exit_status = ACC_ANOTHER_ERROR};
     processor_args_t prcssr_args_pool[PROCESSORS_NUM];
     for(int i = 0; i < PROCESSORS_NUM; i++)
-        prcssr_args_pool[i].exit_status = OTHER_ERROR;
-    sender_args_t sndr_args = {.exit_status = OTHER_ERROR};
+        prcssr_args_pool[i].exit_status = PRC_ANOTHER_ERROR;
+    sender_args_t sndr_args = {.exit_status = SND_ANOTHER_ERROR};
 
     if(0 != pthread_create(&sender, NULL, send_responses,
                            (void*)&sndr_args))
@@ -114,14 +115,6 @@ int main(int argc, char* argv[])
     // thread cancellation.
 
     return EXIT_SUCCESS;
-}
-
-void signals_handler(int signum)
-{
-    if(signum == SIGINT) // Interrupt, Ctrl-C
-    {
-        // Do nothing.
-    }
 }
 
 void wait_for_term_input(const char* cmd)

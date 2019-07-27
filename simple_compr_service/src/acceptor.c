@@ -1,4 +1,4 @@
-#include "worker.h"
+#include "acceptor.h"
 #include "requests_queue.h"
 
 #include <stdlib.h>
@@ -8,8 +8,6 @@
 #include <pthread.h>
 
 #define SCS_ACCEPTOR_DEBUGGING
-#define SCS_PROCESSOR_DEBUGGING
-#define SCS_SENDER_DEBUGGING
 
 void* accept_requests(void* args)
 {
@@ -18,7 +16,7 @@ void* accept_requests(void* args)
     acceptor_args_t* thread_io = (acceptor_args_t*)args;
     if(!thread_io->still_listening)
     {
-        thread_io->exit_status = OTHER_ERROR;
+        thread_io->exit_status = ACC_ANOTHER_ERROR;
         pthread_exit((void*)(&thread_io->exit_status));
     }
 
@@ -48,28 +46,7 @@ void* accept_requests(void* args)
     }
 
     shutdown(thread_io->server_socket_descr, 2);
-    thread_io->exit_status = OK;
+    thread_io->exit_status = ACC_OK;
     pthread_exit((void*)(&thread_io->exit_status));
 }
-
-void* process_requests(void* args)
-{
-    if(!args)
-        pthread_exit(NULL);
-    processor_args_t* thread_io = (processor_args_t*)args;
-
-    thread_io->exit_status = OK;
-    pthread_exit((void*)(&thread_io->exit_status));
-}
-
-void* send_responses(void* args)
-{
-    if(!args)
-        pthread_exit(NULL);
-    sender_args_t* thread_io = (sender_args_t*)args;
-
-    thread_io->exit_status = OK;
-    pthread_exit((void*)(&thread_io->exit_status));
-}
-
 

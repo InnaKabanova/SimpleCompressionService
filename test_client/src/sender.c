@@ -45,14 +45,19 @@ void* send_requests(void* args)
         pthread_exit((void*)(&thread_io->exit_status));
     }
 #ifdef TC_SENDER_DBG
-        printf("From %lu | Successfuly connected to the service.\n",
-               pthread_self());
+    printf("From %lu | Successfuly connected to the service.\n",
+           pthread_self());
 #endif
 
     //----------------------------------------------------------------
     // Main work:
     //----------------------------------------------------------------
+    tc_internal_request_t* curr_request = requests_chain;
+    while(NULL != curr_request)
+    {
 
+        curr_request = curr_request->next_request;
+    }
 
 
     thread_io->exit_status = OK;
