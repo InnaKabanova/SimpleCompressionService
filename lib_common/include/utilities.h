@@ -4,35 +4,41 @@
 #include <netdb.h>
 
 /**
- * @brief Prints the provided error message to stdout and terminates
- * the application with FAIL status.
- * @param msg: recommended format for consistent code style:
- * no spaces at the beginning/end of the string, starts with lowercase,
- * no '\n' at the end of msg.
+ * @brief exit_with_failure. Prints a provided error message to stdout
+ * and terminates the application with FAIL status.
+ * @param[in] msg: an optional error message of the following format:
+ * starts with lowercase, has no spaces at its beginning/end, has no
+ * '\n' at the end (as '\n' is appended automatically).
  */
 void exit_with_failure(const char* msg);
 
 /**
- * @brief Prints parameters of the provided addrinfo struct to stdout:
- * ai_family, ai_socktype, ai_protocol, ai_addr, ai_addrlen.
- * @param info: must have either AF_INET or AF_INET6 address domain.
- * @param tag: optional text to print before the parameters.
- * @param print_error: whether to print error message to stdout in case
- * the function's internal error occurs.
+ * @brief print_addrinfo. Prints the following fields of a provided
+ * addrinfo struct to stdout: ai_family, ai_socktype, ai_protocol,
+ * ai_addr, ai_addrlen.
+ * @param[in] info: must have either AF_INET or AF_INET6 address
+ * domain.
+ * @param[in] tag: optional text to print before the parameters.
+ * @param[in] print_error: whether to print error message to stdout
+ * in case this function's internal error occurs, i.e. the value is
+ * evaluated in if-conditions.
  * @return 1 -- success, 0 -- failure.
  */
-int print_addrinfo(struct addrinfo* info, const char* tag,
-                   int print_error);
+int print_addrinfo(const struct addrinfo* info, const char* tag,
+                   const int print_error);
 
 /**
- * @brief Makes sure all the data is sent (because the 'send' system
- * call doesn't always send all the data at once).
- * @param sock_descr: socket to send data to.
- * @param buff: buffer containing the data to send.
- * @param buff_size: pointer to an int containing the buffer's size in
- * bytes.
+ * @brief send_all. Makes sure all the data is sent through the
+ * specified socket (as the 'send' system call doesn't always send
+ * all the data at once).
+ * @param[in] sock_descr: socket to send data through.
+ * @param[in] buff: buffer containing the data to send.
+ * @param[inout] buff_size: when [in], a pointer to an int containing
+ * the buff's size in bytes; when [out], set to num of bytes actually
+ * sent (on success) or set to -1 if 'send' syscall returned with an
+ * error.
  * @return 1 -- success, 0 -- failure.
  */
-int send_all(int sock_descr, char* buff, int* buff_size);
+int send_all(const int sock_descr, const char* buff, int* buff_size);
 
 #endif /* LIBCOMMON_UTILITIES */

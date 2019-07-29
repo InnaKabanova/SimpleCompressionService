@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include <sys/types.h>
 #include <sys/socket.h>
@@ -9,50 +10,74 @@
 
 void exit_with_failure(const char* msg)
 {
-    printf("ERROR: %s. Exiting.\n", msg);
+    const char* postfix = "";
+    const char* output = "";
+    if(NULL != msg && 0 != strcmp(msg, output))
+    {
+        postfix = ": ";
+        output = msg;
+    }
+
+    printf("ERROR%s%s. Exiting.\n", postfix, output);
     exit(EXIT_FAILURE);
 }
 
-int print_addrinfo(struct addrinfo* info, const char* tag,
-                   int print_error)
+int print_addrinfo(const struct addrinfo* info, const char* tag,
+                   const int print_error)
 {
-    if(info == NULL || info->ai_family == AF_UNSPEC)
+    int family;
+    if(NULL == info || AF_UNSPEC == (family = info->ai_family))
     {
         if(print_error)
             printf("ERROR: print_addrinfo: invalid arguments.\n");
         return 0;
     }
 
-    int family = info->ai_family;
-    char dest[family == AF_INET ? INET_ADDRSTRLEN : INET6_ADDRSTRLEN];
+    // Obtain the to-be-converted address (in binary network format):
     const void* src;
-
     if(AF_INET == family)
+    {
         src = (const void*)
-              (&(((struct sockaddr_in*)info->ai_addr)->sin_addr));
+                (&(((struct sockaddr_in*)info->ai_addr)->sin_addr));
+    }
     else if(AF_INET6 == family)
+    {
         src = (const void*)
-              (&(((struct sockaddr_in6*)info->ai_addr)->sin6_addr));
+                (&(((struct sockaddr_in6*)info->ai_addr)->sin6_addr));
+    }
 
-    const char* dest_ptr = inet_ntop(family, src, (const void*)&dest,
-                                          sizeof(dest));
-    if(dest_ptr == NULL)
+    // Buffer for presentation form of (&src):
+    char buff[family == AF_INET ? INET_ADDRSTRLEN : INET6_ADDRSTRLEN];
+
+    const char* dest = inet_ntop(family, src, (void*)&buff, sizeof(buff));
+    if(NULL == dest)
     {
         if(print_error)
             printf("ERROR: print_addrinfo: could not convert the "
-                   "provided address from binary to text.\n");
+                   "address provided from binary to text.\n");
         return 0;
     }
+    else
+    {
+        const char* prefix = "";
+        if(NULL != tag)
+            prefix = ": ";
 
-    printf("%s: ai_family: %i | ai_socktype: %i | "
-           "ai_protocol: %i | ai_addr: %s | ai_addrlen: %i\n",
-           (tag == NULL ? "" : tag), info->ai_family, info->ai_socktype,
-           info->ai_protocol, dest_ptr, info->ai_addrlen);
-    return 1;
+        printf("%s%s"
+               "ai_family: %i | ai_socktype: %i | "
+               "ai_protocol: %i | ai_addr: %s | ai_addrlen: %i\n",
+               (NULL == tag ? "" : tag), prefix,
+               info->ai_family, info->ai_socktype,
+               info->ai_protocol, dest, info->ai_addrlen);
+        return 1;
+    }
 }
 
-int send_all(int sock_descr, char* buff, int* buff_size)
+int send_all(const int sock_descr, const char* buff, int* buff_size)
 {
+    if(NULL == buff || NULL == buff_size)
+        return 0;
+
     int bytes_sent = 0;
     int bytes_left = *buff_size;
     int n;
