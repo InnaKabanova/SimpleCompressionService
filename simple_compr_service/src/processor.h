@@ -1,17 +1,10 @@
-#ifndef SCS_REQUESTS_PROCESSOR
-#define SCS_REQUESTS_PROCESSOR
+#ifndef SIMPLE_COMPR_SERVICE_PROCESSOR
+#define SIMPLE_COMPR_SERVICE_PROCESSOR
 
-typedef enum processor_exit_status
-{
-    PRC_OK,
-    PRC_ANOTHER_ERROR
-} processor_exit_status_t;
-
-typedef struct processor_args
-{
-    processor_exit_status_t exit_status;
-} processor_args_t;
-
+/**
+ * @brief
+ * @param[in] args: .
+ */
 void* process_requests(void* args);
 
-#endif /* SCS_REQUESTS_PROCESSOR */
+#endif /* SIMPLE_COMPR_SERVICE_PROCESSOR */

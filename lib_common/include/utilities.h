@@ -4,18 +4,8 @@
 #include <netdb.h>
 
 /**
- * @brief exit_with_failure. Prints a provided error message to stdout
- * and terminates the application with FAIL status.
- * @param[in] msg: an optional error message of the following format:
- * starts with lowercase, has no spaces at its beginning/end, has no
- * '\n' at the end (as '\n' is appended automatically).
- */
-void exit_with_failure(const char* msg);
-
-/**
- * @brief print_addrinfo. Prints the following fields of a provided
- * addrinfo struct to stdout: ai_family, ai_socktype, ai_protocol,
- * ai_addr, ai_addrlen.
+ * @brief Prints the following fields of a provided addrinfo struct to
+ * stdout: ai_family, ai_socktype, ai_protocol, ai_addr, ai_addrlen.
  * @param[in] info: must have either AF_INET or AF_INET6 address
  * domain.
  * @param[in] tag: optional text to print before the parameters.
@@ -28,9 +18,8 @@ int print_addrinfo(const struct addrinfo* info, const char* tag,
                    const int print_error);
 
 /**
- * @brief send_all. Makes sure all the data is sent through the
- * specified socket (as the 'send' system call doesn't always send
- * all the data at once).
+ * @brief Makes sure all the data is sent through the specified socket
+ * (as the 'send' system call doesn't always send all the data at once).
  * @param[in] sock_descr: socket to send data through.
  * @param[in] buff: buffer containing the data to send.
  * @param[inout] buff_size: when [in], a pointer to an int containing

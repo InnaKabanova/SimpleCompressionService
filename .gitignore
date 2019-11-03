@@ -41,7 +41,6 @@ cmake_install.cmake
 CMakeLists.txt.user*
 
 # Build results
-lib_common/build*
-simple_compr_service/build*
-test_client/build*
-!build.sh
+lib_common/build/*
+simple_compr_service/build/*
+test_client/build/*

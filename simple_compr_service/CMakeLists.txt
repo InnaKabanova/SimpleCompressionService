@@ -10,15 +10,14 @@ link_directories(
 add_executable(
     ${PROJECT_NAME}
     "src/main.c"
-    "src/server.c"
     "src/requests_queue.c"
-    "src/acceptor.c"
     "src/processor.c"
+    "src/receiver.c"
     "src/sender.c"
+    "src/receiver_logging.c"
     )
 target_link_libraries(
     ${PROJECT_NAME}
     pthread
     scscommon
     )
-

@@ -1,68 +1,132 @@
 #include "sender.h"
-#include "utilities.h"
-#include "networking.h"
-#include "config.h"
+#include "connection.h"
 
 #include <stdlib.h>
 #include <stdio.h>
-#include <string.h>
 #include <pthread.h>
 #include <errno.h>
+#include <sys/socket.h>
 
-#define TC_SENDER_DBG
+#ifdef REQUESTS_IMPORT_MODE
+#include "requests_import.h"
+
+#else // REQUESTS_GENERATION_MODE
+#include "requests_generation.h"
+#endif
+
+extern pthread_key_t SOCK_DESCR_KEY;
+
+#ifdef REQUESTS_IMPORT_MODE
+void process_chain(tc_internal_request_t* requests_chain,
+                   const int sock_descr);
+
+#else // REQUESTS_GENERATION_MODE
+void process_chain(test_action_t* test_actions_chain);
+#endif
 
 void* send_requests(void* args)
 {
-    if(!args)
-        pthread_exit(NULL);
+    if(!args) pthread_exit(NULL);
     sender_args_t* thread_io = (sender_args_t*)args;
+    int* sock_descr = (int*)malloc(sizeof(int));
 
-    //----------------------------------------------------------------
-    // Initialization:
-    //----------------------------------------------------------------
-    int sock_descr;
-    tc_internal_request_t* requests_chain = NULL;
-
-    if(0 == get_requests(thread_io->filepath, &requests_chain))
+    *sock_descr = try_to_connect(thread_io->node, thread_io->port_num);
+    if(-1 == *sock_descr)
     {
-#ifdef TC_SENDER_DBG
-        printf("From %lu | ERROR: failed to get requests from "
-               "config file '%s'.\n", pthread_self(), thread_io->filepath);
-#endif
-        thread_io->exit_status = REQUESTS_FILE_ERROR;
+        printf("From '%lu' | ERROR: failed to connect to the service "
+               "'%s' on port '%s'.\n",
+               pthread_self(), thread_io->node, thread_io->port_num);
+        free(sock_descr);
+        thread_io->exit_status = SND_CONNECTION_ERROR;
         pthread_exit((void*)(&thread_io->exit_status));
     }
-
-    sock_descr = try_to_connect(thread_io->node, thread_io->port_num);
-    if(-1 == sock_descr)
+    if(0 != pthread_setspecific(SOCK_DESCR_KEY, (void*)sock_descr))
     {
-#ifdef TC_SENDER_DBG
-        printf("From %lu | ERROR: failed to connect to the service "
-               "%s on port %s.\n", pthread_self(), thread_io->node,
-               thread_io->port_num);
-#endif
-        thread_io->exit_status = CONNECTION_ERROR;
+        printf("From '%lu' | ERROR: failed to save socket descriptor.\n",
+               pthread_self());
+        free(sock_descr);
+        thread_io->exit_status = SND_PTHREAD_ERROR;
         pthread_exit((void*)(&thread_io->exit_status));
     }
-#ifdef TC_SENDER_DBG
-    printf("From %lu | Successfuly connected to the service.\n",
+    printf("From '%lu' | Successfully connected to the service.\n",
            pthread_self());
+
+#ifdef REQUESTS_IMPORT_MODE
+    tc_internal_request_t* requests_chain = NULL;
+    if(0 == import_requests(thread_io->config_path, &requests_chain))
+    {
+        printf("From '%lu' | ERROR: failed to import requests from "
+               "config file '%s'.\n",
+               pthread_self(), thread_io->config_path);
+        thread_io->exit_status = SND_REQUESTS_OBTAINING_ERROR;
+        pthread_exit((void*)(&thread_io->exit_status));
+    }
+    process_chain(requests_chain, sock_descr);
+
+#else // REQUESTS_GENERATION_MODE
+    test_action_t* tests_chain = NULL;
+    if(NULL == (tests_chain = generate_requests(
+                    TS_VALID_REQUESTS_WITHOUT_PAYLOAD)))
+    {
+        printf("From '%lu' | ERROR: failed to generate requests.\n",
+               pthread_self());
+        thread_io->exit_status = SND_REQUESTS_OBTAINING_ERROR;
+        pthread_exit((void*)(&thread_io->exit_status));
+    }
+    process_chain(tests_chain);
+
 #endif
 
-    //----------------------------------------------------------------
-    // Main work:
-    //----------------------------------------------------------------
-    tc_internal_request_t* curr_request = requests_chain;
-    while(NULL != curr_request)
-    {
-
-        curr_request = curr_request->next_request;
-    }
-
-
-    thread_io->exit_status = OK;
+    thread_io->exit_status = SND_SUCCESS;
     pthread_exit((void*)(&thread_io->exit_status));
 }
 
+#ifdef REQUESTS_IMPORT_MODE
+void process_chain(tc_internal_request_t* requests_chain,
+                   const int sock_descr)
+{
+    if(NULL == requests_chain) return;
 
+    tc_internal_request_t* curr_request = requests_chain;
+    tc_internal_request_t* disposed_request = NULL;
+    while(NULL != curr_request)
+    {
+        if(0 == send_request(curr_request, sock_descr))
+        {
+            printf("From '%lu' | ERROR: could not send a request: "
+                   "[%d].\n",
+                   pthread_self(), errno);
+        }
+
+        if(NULL != curr_request->payload)
+            free(curr_request->payload);
+        disposed_request = curr_request;
+        curr_request = curr_request->next_request;
+        free(disposed_request);
+
+        if(NULL == curr_request)
+            shutdown(sock_descr, SHUT_WR);
+    }
+}
+
+#else // REQUESTS_GENERATION_MODE
+void process_chain(test_action_t* test_actions_chain)
+{
+    if(NULL == test_actions_chain) return;
+
+    test_action_t* curr_ta = test_actions_chain;
+    test_action_t* disposed_ta = NULL;
+    while(NULL != curr_ta)
+    {
+        printf("From '%lu' | Performing test action: '%s'.\n",
+               pthread_self(), curr_ta->descr);
+        if(NULL != curr_ta->action)
+            curr_ta->action();
+        disposed_ta = curr_ta;
+        curr_ta = curr_ta->next_test_action;
+        free(disposed_ta);
+    }
+}
+
+#endif
 

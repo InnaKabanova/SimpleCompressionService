@@ -1,5 +1,4 @@
 #include <stdio.h>
-#include <stdlib.h>
 #include <string.h>
 
 #include <sys/types.h>
@@ -7,20 +6,6 @@
 #include <arpa/inet.h>
 
 #include "utilities.h"
-
-void exit_with_failure(const char* msg)
-{
-    const char* postfix = "";
-    const char* output = "";
-    if(NULL != msg && 0 != strcmp(msg, output))
-    {
-        postfix = ": ";
-        output = msg;
-    }
-
-    printf("ERROR%s%s. Exiting.\n", postfix, output);
-    exit(EXIT_FAILURE);
-}
 
 int print_addrinfo(const struct addrinfo* info, const char* tag,
                    const int print_error)
@@ -72,6 +57,15 @@ int print_addrinfo(const struct addrinfo* info, const char* tag,
         return 1;
     }
 }
+
+/**
+ * @param[in] buff: buffer containing the data to send.
+ * @param[inout] buff_size: when [in], a pointer to an int containing
+ * the buff's size in bytes; when [out], set to num of bytes actually
+ * sent (on success) or set to -1 if 'send' syscall returned with an
+ * error.
+ * @return 1 -- success, 0 -- failure.
+ */
 
 int send_all(const int sock_descr, const char* buff, int* buff_size)
 {

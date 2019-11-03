@@ -1,17 +1,15 @@
-#ifndef SCS_REQUESTS_QUEUE
-#define SCS_REQUESTS_QUEUE
+#ifndef SIMPLE_COMPR_SERVICE_REQUESTS_QUEUE
+#define SIMPLE_COMPR_SERVICE_REQUESTS_QUEUE
 
 #include "request.h"
-
-#include <sys/socket.h>
 
 typedef struct scs_internal_request
 {
     request_header_t header;
     char** payload;
-    struct sockaddr_storage client_addr;
-    socklen_t client_addr_len;
-    // TODO: socket
+    int sock_descr;
 } scs_internal_request_t;
 
-#endif /* SCS_REQUESTS_QUEUE */
+void push_request(scs_internal_request_t* request);
+
+#endif /* SIMPLE_COMPR_SERVICE_REQUESTS_QUEUE */

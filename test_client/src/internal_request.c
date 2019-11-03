@@ -1,82 +1,26 @@
 #include "internal_request.h"
+#include "utilities.h"
 
-#include <stdlib.h>
-#include <string.h>
-
-tc_internal_request_t* get_basic_request()
+int send_request(tc_internal_request_t* msg, const int sock_descr)
 {
-    tc_internal_request_t* new_request =
-    (tc_internal_request_t*)malloc(sizeof(tc_internal_request_t));
-    new_request->header.magic_value = DEFAULT_MAGIC_VALUE;
-    new_request->header.payload_length = 0;
-    new_request->payload = NULL;
-    new_request->next_request = NULL;
-    return new_request;
-}
+    unsigned int header_bytes_sent = sizeof(request_header_t);
+    unsigned int payload_bytes_sent = msg->header.payload_len;
 
-tc_internal_request_t* create_request(const char* request_str)
-{
-    size_t request_len;
-    if(NULL == request_str || 0 == (request_len = strlen(request_str)))
-        return NULL;
+    msg->header.magic_value = htonl(msg->header.magic_value);
+    msg->header.uuid = htonl(msg->header.magic_value);
+    msg->header.code = htons(msg->header.code);
+    msg->header.payload_len = htons(msg->header.payload_len);
 
-    const char* ptr = request_str;
-    tc_internal_request_t* new_request;
+    if(0 == send_all(sock_descr, (char*)(&msg->header),
+                     &header_bytes_sent))
+        return 0;
 
-    // 1st & 2nd bytes determine whether request_str can be considered
-    // valid.
-
-    // Check candidates for simple requests (PING, GET_STATS, RESET_STATS)
-    if(*ptr == '1' || *ptr == '2' || *ptr == '3')
+    if(payload_bytes_sent)
     {
-        if(1 != request_len)
-            return NULL;
-        else
-        {
-            new_request = get_basic_request();
-            switch(*ptr)
-            {
-            case '1':
-                new_request->header.request_code = PING;
-                break;
-            case '2':
-                new_request->header.request_code = GET_STATS;
-                break;
-            case '3':
-                new_request->header.request_code = RESET_STATS;
-                break;
-            }
-            return new_request;
-        }
+        if(0 == send_all(sock_descr, (char*)(&msg->payload),
+                         &payload_bytes_sent))
+            return 0;
     }
-    // Check candidates for requests with payload (COMPRESS)
-    else if(*ptr == '4')
-    {
-        const char delim = *(ptr + 1);
-        if(' ' != delim || '\0' == delim || '\n' == delim)
-            return NULL;
-        else
-        {
-            new_request = get_basic_request();
-            new_request->header.request_code = COMPRESS;
-            // Ignore whitespaces:
-            while(' ' == *++ptr);
-            // Assume the rest is a payload:
-            size_t payload_len = strlen(ptr);
-            if(0 == payload_len)
-            {
-                free(new_request);
-                return NULL;
-            }
-            else
-            {
-                new_request->header.payload_length = payload_len;
-                new_request->payload = (char*)malloc(payload_len);
-                strncpy(new_request->payload, ptr, payload_len);
-                return new_request;
-            }
-        }
-    }
-    else
-        return NULL;
+
+    return 1;
 }

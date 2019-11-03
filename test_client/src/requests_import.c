@@ -1,11 +1,14 @@
-#include "config.h"
-#include "utilities.h"
+#include "requests_import.h"
+#include "uuid.h"
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <pthread.h>
 #include <errno.h>
+
+//--------------------------------------------------------------------
+// Requests importer configuration:
 
 // Print errors when extracting contents of any file:
 #define TC_CONFIG_EXTRACTION_DBG
@@ -17,6 +20,96 @@
 #define TC_CONFIG_REQUESTS_FILE_DBG
 // Print contents of any file with requests (if successfully extracted):
 #define TC_CONFIG_REQUESTS_FILE_CONTENTS
+//--------------------------------------------------------------------
+
+tc_internal_request_t* get_basic_request()
+{
+    tc_internal_request_t* new_request =
+    (tc_internal_request_t*)malloc(sizeof(tc_internal_request_t));
+    new_request->header.magic_value = REQUEST_MAGIC_VALUE;
+    get_uuid(&new_request->header.uuid);
+    new_request->header.payload_len = 0;
+    new_request->payload = NULL;
+    new_request->next_request = NULL;
+    return new_request;
+}
+
+/**
+ * @brief Deserializes provided textual data into internal
+ * represenatation of a request. Memory for each request is dynamically
+ * allocated and responsibility of its freeing is on the function's
+ * caller.
+ * @param[in] request_str: textual data representing a request.
+ * @return valid (tc_internal_request_t*) pointer in case of success,
+ * NULL in case of failure.
+ */
+tc_internal_request_t* create_request(const char* request_str)
+{
+    size_t request_len;
+    if(NULL == request_str || 0 == (request_len = strlen(request_str)))
+        return NULL;
+
+    const char* ptr = request_str;
+    tc_internal_request_t* new_request;
+
+    // 1st & 2nd bytes determine whether request_str can be considered
+    // valid.
+
+    // Check candidates for becoming simple requests
+    // (without payload):
+    if(*ptr == '1' || *ptr == '2' || *ptr == '3')
+    {
+        if(1 != request_len)
+            return NULL;
+        else
+        {
+            new_request = get_basic_request();
+            switch(*ptr)
+            {
+            case '1':
+                new_request->header.code = REQ_PING;
+                break;
+            case '2':
+                new_request->header.code = REQ_GET_STATS;
+                break;
+            case '3':
+                new_request->header.code = REQ_RESET_STATS;
+                break;
+            }
+            return new_request;
+        }
+    }
+    // Check candidates for becoming requests with payload:
+    else if(*ptr == '4')
+    {
+        const char delim = *(ptr + 1);
+        if(' ' != delim || '\0' == delim || '\n' == delim)
+            return NULL;
+        else
+        {
+            new_request = get_basic_request();
+            new_request->header.code = REQ_COMPRESS;
+            // Ignore whitespaces:
+            while(' ' == *++ptr);
+            // Assume the rest is a payload:
+            size_t payload_len = strlen(ptr);
+            if(0 == payload_len)
+            {
+                free(new_request);
+                return NULL;
+            }
+            else
+            {
+                new_request->header.payload_len = payload_len;
+                new_request->payload = (char*)malloc(payload_len);
+                strncpy(new_request->payload, ptr, payload_len);
+                return new_request;
+            }
+        }
+    }
+    else
+        return NULL;
+}
 
 char* extract_contents(const char* filepath)
 {
@@ -60,7 +153,7 @@ char* extract_contents(const char* filepath)
     return str;
 }
 
-int get_filepathes(char** files_string)
+int get_config_filepathes(char** files_string)
 {
     if(NULL == files_string || NULL != *files_string)
     {
@@ -83,10 +176,10 @@ int get_filepathes(char** files_string)
     return 1;
 }
 
-int get_requests(const char* filepath,
+int import_requests(const char* filepath,
                  tc_internal_request_t** requests_chain)
 {
-    if(!filepath || !requests_chain || NULL != *requests_chain)
+    if(!filepath || NULL == requests_chain || NULL != *requests_chain)
     {
 #ifdef TC_CONFIG_REQUESTS_FILE_DBG
         printf("From %lu | '%s' | ERROR: bad argument.\n",
@@ -137,7 +230,7 @@ int get_requests(const char* filepath,
     else
     {
         requests_num++;
-        requests_chain = &first;
+        *requests_chain = first;
         last = first;
         ret = 1;
     }
@@ -167,3 +260,4 @@ exit:
     free(requests_string);
     return ret;
 }
+

@@ -10,10 +10,13 @@ link_directories(
 add_executable(
     ${PROJECT_NAME}
     "src/main.c"
-    "src/networking.c"
+    "src/connection.c"
+    "src/senders_manager.c"
     "src/sender.c"
-    "src/config.c"
+    "src/requests_import.c"
+    "src/requests_generation.c"
     "src/internal_request.c"
+    "src/uuid.c"
     )
 add_compile_options(
     -O0

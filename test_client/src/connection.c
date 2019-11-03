@@ -1,12 +1,14 @@
-#include "networking.h"
+#include "connection.h"
 #include "utilities.h"
 
 #include <stdio.h>
 #include <string.h>
 
+#include <unistd.h>
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netdb.h>
+#include <arpa/inet.h>
 #include <pthread.h>
 
 #define TC_NETWORKING_DBG 1
