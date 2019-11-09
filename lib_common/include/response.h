@@ -3,13 +3,13 @@
 
 #include <stdint.h>
 
-enum response_code_t
+typedef enum response_code
 {
-    SUCCESS = 0,
-    UNKNOWN_ERROR = 1,
-    UNKNOWN_REQUEST_CODE = 2,
-    STR_TOO_LARGE = 3 // payload (data for compression) is too large
-};
+    RESP_SUCCESS = 0,
+    RESP_UNKNOWN_ERROR = 1,
+    RESP_UNKNOWN_REQUEST_CODE = 2,
+    RESP_STR_TOO_LARGE = 3 // payload (data for compression) is too large
+} response_code_t;
 
 typedef struct response_header
 {

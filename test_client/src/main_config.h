@@ -28,6 +28,6 @@
  * @brief Max. number of worker threads that _simultaneously_ send
  * requests to a compression service.
  */
-#define MAX_SENDERS_NUM 5
+#define MAX_SENDERS_NUM 1
 
 #endif /* TEST_CLIENT_CONFIG */

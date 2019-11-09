@@ -7,14 +7,18 @@ include_directories(
 link_directories(
     "../../lib_common/build/"
     )
+add_compile_options(
+    "-Wall"
+)
 add_executable(
     ${PROJECT_NAME}
     "src/main.c"
+    "src/queue.c"
     "src/requests_queue.c"
     "src/processor.c"
     "src/receiver.c"
     "src/sender.c"
-    "src/receiver_logging.c"
+    "src/logging_utilities.c"
     )
 target_link_libraries(
     ${PROJECT_NAME}

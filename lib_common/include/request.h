@@ -6,13 +6,13 @@
 #define REQUEST_MAGIC_VALUE 0x53545259
 #define MAX_REQUEST_PAYLOAD_LEN (UINT16_MAX / 2)
 
-enum request_code_t
+typedef enum request_code
 {
     REQ_PING = 1, // checks if the service is operating normally
     REQ_GET_STATS = 2, // requests internal statistics of the service
     REQ_RESET_STATS = 3, // resets internal statistics of the service
     REQ_COMPRESS = 4 // requests data to be compressed
-};
+} request_code_t;
 
 /**
  * @brief All data fields must be in network byte order to be valid.

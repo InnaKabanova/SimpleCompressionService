@@ -1,6 +1,9 @@
 #include "receiver.h"
-#include "receiver_logging.h"
 #include "requests_queue.h"
+
+#ifdef SCS_RECEIVER_DBG
+#include "logging_utilities.h"
+#endif
 
 #include <stdlib.h>
 
@@ -10,16 +13,17 @@
 #include <sys/socket.h>
 #include <arpa/inet.h>
 
-//--------------------------------------------------------------------
-// Receiver configuration:
-
 /**
  * @brief Max. amount of time to wait for new data on a socket before
  * considering the connection no longer opened/valid.
  */
-#define TIMEOUT_SEC 5
+#define MAX_DATA_WAITING_TIME_SEC 5
 
-//--------------------------------------------------------------------
+/**
+ * @brief Max. amount of time to wait for a free slot in the request
+ * queue in case it is full until to-be-pushed request is dropped.
+ */
+#define MAX_QUEUE_WAITING_TIME_SEC 2
 
 typedef enum recv_status
 {
@@ -40,7 +44,7 @@ void* receive_requests(void* args)
     receiver_args_t* thread_io = (receiver_args_t*)args;
 
     struct timeval timeout;
-    timeout.tv_sec = 5;
+    timeout.tv_sec = MAX_DATA_WAITING_TIME_SEC;
     timeout.tv_usec = 0;
     setsockopt(thread_io->sock_descr, SOL_SOCKET,
                SO_RCVTIMEO, (const char*)&timeout, sizeof(timeout));
@@ -57,16 +61,21 @@ void* receive_requests(void* args)
         {
             case RECV_TIMEOUT:
                 free(buff);
-                log_event(thread_io->sock_descr, RECV_TIMEOUT_EVENT);
+#ifdef SCS_RECEIVER_DBG
+                log_conn_result(thread_io->sock_descr, CC_TIMEOUT);
+#endif
                 break;
             case RECV_FAILED:
                 free(buff);
-                log_event(thread_io->sock_descr, RECV_FAILED_EVENT);
-                // SCS_TODO: log errno
+#ifdef SCS_RECEIVER_DBG
+                log_conn_result(thread_io->sock_descr, CC_FAILED, errno);
+#endif
                 break;
             case RECV_DONE:
                 free(buff);
-                log_event(thread_io->sock_descr, RECV_DONE_EVENT);
+#ifdef SCS_RECEIVER_DBG
+                log_conn_result(thread_io->sock_descr, CC_DONE);
+#endif
                 break;
             case RECV_SUCCESS:
             {
@@ -76,8 +85,11 @@ void* receive_requests(void* args)
                 temp->sock_descr = thread_io->sock_descr;
                 if(deserialize_data(temp))
                 {
-                    requests_received++;
-                    push_request(temp);
+                    if(0 == push_request_blocking(temp,
+                                                  MAX_QUEUE_WAITING_TIME_SEC))
+                        free(temp);
+                    else
+                        requests_received++;
                 }
                 else
                 {
@@ -88,6 +100,8 @@ void* receive_requests(void* args)
         }
     } while(RECV_TIMEOUT != status && RECV_DONE != status &&
             RECV_FAILED != status && RECV_BAD_ARGS != status);
+
+    syslog(LOG_ERR, "Requests received: %d", requests_received);
 
     free(thread_io);
 }
@@ -155,7 +169,7 @@ int deserialize_data(scs_internal_request_t* candidate)
            REQ_COMPRESS == candidate->header.code &&
            candidate->header.payload_len <= MAX_REQUEST_PAYLOAD_LEN)
         {
-            candidate->payload = payload_buff;
+            candidate->payload = (char*)payload_buff;
         }
         else
         {

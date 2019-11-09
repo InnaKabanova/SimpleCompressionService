@@ -1,4 +1,5 @@
 #include "requests_generation.h"
+#include "uuid.h"
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -103,31 +104,58 @@ test_action_t* generate_requests(test_scenario_t scenario)
 
 static void initialization(void)
 {
-    void* sock_descr = pthread_getspecific(SOCK_DESCR_KEY);
-    printf("From '%lu' | initialization: '%d'.\n",
-           pthread_self(), *((int*)sock_descr));
+//    void* sock_descr = pthread_getspecific(SOCK_DESCR_KEY);
 }
 
 static void send_valid_requests_without_payload(void)
 {
     void* sock_descr = pthread_getspecific(SOCK_DESCR_KEY);
-    printf("From '%lu' | send_valid_requests_without_payload: '%d'.\n",
-           pthread_self(), *((int*)sock_descr));
+
+    tc_internal_request_t* r_1 = (tc_internal_request_t*)
+            malloc(sizeof(tc_internal_request_t));
+    tc_internal_request_t* r_2 = (tc_internal_request_t*)
+            malloc(sizeof(tc_internal_request_t));
+    tc_internal_request_t* r_3 = (tc_internal_request_t*)
+            malloc(sizeof(tc_internal_request_t));
+
+    r_1->header.magic_value = REQUEST_MAGIC_VALUE;
+    get_uuid(&r_1->header.uuid);
+    r_1->header.payload_len = 0;
+    r_1->next_request = NULL;
+    r_1->header.code = REQ_PING;
+    r_1->payload = NULL;
+
+    r_2->header.magic_value = REQUEST_MAGIC_VALUE;
+    get_uuid(&r_2->header.uuid);
+    r_2->header.payload_len = 0;
+    r_2->next_request = NULL;
+    r_2->header.code = REQ_GET_STATS;
+    r_2->payload = NULL;
+
+    r_3->header.magic_value = REQUEST_MAGIC_VALUE;
+    get_uuid(&r_3->header.uuid);
+    r_3->header.payload_len = 0;
+    r_3->next_request = NULL;
+    r_3->header.code = REQ_RESET_STATS;
+    r_3->payload = NULL;
+
+    send_request(r_1, *((int*)sock_descr));
+    send_request(r_2, *((int*)sock_descr));
+    send_request(r_3, *((int*)sock_descr));
+
+    free(r_1);
+    free(r_2);
+    free(r_3);
 }
 
 static void send_valid_requests_with_payload(void)
 {
-    void* sock_descr = pthread_getspecific(SOCK_DESCR_KEY);
-    printf("From '%lu' | send_valid_requests_with_payload: '%d'.\n",
-           pthread_self(), *((int*)sock_descr));
+//    void* sock_descr = pthread_getspecific(SOCK_DESCR_KEY);
 }
 
 static void disconnect_normally(void)
 {
     void* sock_descr = pthread_getspecific(SOCK_DESCR_KEY);
-    printf("From '%lu' | disconnect_normally: '%d'.\n",
-           pthread_self(), *((int*)sock_descr));
-
     shutdown(*((int*)sock_descr), SHUT_RDWR);
 }
 

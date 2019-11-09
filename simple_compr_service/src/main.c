@@ -1,3 +1,4 @@
+#include "requests_queue.h"
 #include "receiver.h"
 #include "processor.h"
 #include "sender.h"
@@ -57,6 +58,8 @@
  */
 #define MIN_SENDERS_PERCENTAGE 1.0
 
+#define REQUESTS_QUEUE_SIZE 50
+
 //--------------------------------------------------------------------
 
 pthread_attr_t attr; // holds common attributes of worker threads
@@ -68,6 +71,7 @@ int init_workers_attributes(pthread_attr_t* attr);
 int init_daemon(void);
 int init_networking(int* sock_descr, const char* port_num,
                     const int backlog);
+int init_queues(void);
 void accept_connections(const int sock_descr);
 void cleanup(void);
 
@@ -94,6 +98,9 @@ int main(int argc, char* argv[])
     if(0 == init_networking(&sock_descr, argv[1], SERVICE_BACKLOG))
         exit(EXIT_FAILURE);
 
+    if(0 == init_queues())
+        exit(EXIT_FAILURE);
+
     int err = 0;
     int processors_created = 0;
     int senders_created = 0;
@@ -107,7 +114,7 @@ int main(int argc, char* argv[])
         }
         else
         {
-            syslog(LOG_INFO, "Created a processor thread #%d with ID %lu",
+            syslog(LOG_DEBUG, "Created a processor thread #%d with ID %lu",
                    i + 1, processors_pool[i]);
             processors_created++;
         }
@@ -122,7 +129,7 @@ int main(int argc, char* argv[])
         }
         else
         {
-            syslog(LOG_INFO, "Created a sender thread #%d with ID %lu",
+            syslog(LOG_DEBUG, "Created a sender thread #%d with ID %lu",
                    i + 1, senders_pool[i]);
             senders_created++;
         }
@@ -264,6 +271,11 @@ int init_networking(int* sock_descr, const char* port_num,
     return 1;
 }
 
+int init_queues(void)
+{
+    return init_requests_queue(REQUESTS_QUEUE_SIZE);
+}
+
 void accept_connections(const int sock_descr)
 {
     int new_descr, err;
@@ -281,12 +293,13 @@ void accept_connections(const int sock_descr)
             continue;
         }
 
-        syslog(LOG_INFO, "Accepted connection on the socket %d. "
+        syslog(LOG_DEBUG, "Accepted connection on the socket %d. "
                          "New socket: %d", sock_descr, new_descr);
         receiver_args_t* args = (receiver_args_t*)malloc
                 (sizeof(receiver_args_t));
         args->sock_descr = new_descr;
-        err = pthread_create(&args->thread_id, &attr, receive_requests, (void*)args);
+        err = pthread_create(&args->thread_id, &attr, receive_requests,
+                             (void*)args);
 
 #ifdef SCS_RECEIVER_DBG
         if(0 != err)
