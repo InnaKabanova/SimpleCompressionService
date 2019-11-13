@@ -3,6 +3,6 @@
 
 #include <stdint.h>
 
-void get_uuid(uint32_t* uuid);
+uint32_t get_uuid(void);
 
 #endif /* TEST_CLIENT_UUID */

@@ -1,8 +1,10 @@
 #include "requests_generation.h"
 #include "uuid.h"
+#include "test_data.h"
 
 #include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
 #include <pthread.h>
 #include <sys/socket.h>
 
@@ -111,46 +113,42 @@ static void send_valid_requests_without_payload(void)
 {
     void* sock_descr = pthread_getspecific(SOCK_DESCR_KEY);
 
-    tc_internal_request_t* r_1 = (tc_internal_request_t*)
-            malloc(sizeof(tc_internal_request_t));
-    tc_internal_request_t* r_2 = (tc_internal_request_t*)
-            malloc(sizeof(tc_internal_request_t));
-    tc_internal_request_t* r_3 = (tc_internal_request_t*)
-            malloc(sizeof(tc_internal_request_t));
+    tc_internal_request_t r_1 = r_ping;
+    tc_internal_request_t r_2 = r_get_stats;
+    tc_internal_request_t r_3 = r_reset_stats;
 
-    r_1->header.magic_value = REQUEST_MAGIC_VALUE;
-    get_uuid(&r_1->header.uuid);
-    r_1->header.payload_len = 0;
-    r_1->next_request = NULL;
-    r_1->header.code = REQ_PING;
-    r_1->payload = NULL;
+    r_1.header.uuid = get_uuid();
+    r_2.header.uuid = get_uuid();
+    r_3.header.uuid = get_uuid();
 
-    r_2->header.magic_value = REQUEST_MAGIC_VALUE;
-    get_uuid(&r_2->header.uuid);
-    r_2->header.payload_len = 0;
-    r_2->next_request = NULL;
-    r_2->header.code = REQ_GET_STATS;
-    r_2->payload = NULL;
-
-    r_3->header.magic_value = REQUEST_MAGIC_VALUE;
-    get_uuid(&r_3->header.uuid);
-    r_3->header.payload_len = 0;
-    r_3->next_request = NULL;
-    r_3->header.code = REQ_RESET_STATS;
-    r_3->payload = NULL;
-
-    send_request(r_1, *((int*)sock_descr));
-    send_request(r_2, *((int*)sock_descr));
-    send_request(r_3, *((int*)sock_descr));
-
-    free(r_1);
-    free(r_2);
-    free(r_3);
+    send_request(&r_1, *((int*)sock_descr));
+    send_request(&r_2, *((int*)sock_descr));
+    send_request(&r_3, *((int*)sock_descr));
 }
 
 static void send_valid_requests_with_payload(void)
 {
-//    void* sock_descr = pthread_getspecific(SOCK_DESCR_KEY);
+    void* sock_descr = pthread_getspecific(SOCK_DESCR_KEY);
+
+    tc_internal_request_t r_1 = r_compress;
+    tc_internal_request_t r_2 = r_compress;
+    tc_internal_request_t r_3 = r_compress;
+
+    r_1.header.uuid = get_uuid();
+    r_2.header.uuid = get_uuid();
+    r_3.header.uuid = get_uuid();
+
+    r_1.payload = test_str_1;
+    r_2.payload = test_str_2;
+    r_3.payload = test_str_3;
+
+    r_1.header.payload_len = strlen(test_str_1);
+    r_2.header.payload_len = strlen(test_str_2);
+    r_3.header.payload_len = strlen(test_str_3);
+
+    send_request(&r_1, *((int*)sock_descr));
+    send_request(&r_2, *((int*)sock_descr));
+    send_request(&r_3, *((int*)sock_descr));
 }
 
 static void disconnect_normally(void)

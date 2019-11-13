@@ -37,7 +37,7 @@
  * @brief Number of worker threads that process incoming requests and
  * produce responses.
  */
-#define PROCESSORS_NUM 1
+#define PROCESSORS_NUM 2
 
 /**
  * @brief Number of worker threads that send responses to clients.

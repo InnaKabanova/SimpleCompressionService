@@ -11,6 +11,9 @@ void* process_requests(void* args)
     {
         scs_internal_request_t* request = pop_request_blocking();
         if(NULL != request) log_request(request);
+
+        if(request->header.payload_len > 0 && request->payload != NULL)
+            free(request->payload);
         free(request);
     }
 }

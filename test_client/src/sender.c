@@ -66,7 +66,7 @@ void* send_requests(void* args)
 #else // REQUESTS_GENERATION_MODE
     test_action_t* tests_chain = NULL;
     if(NULL == (tests_chain = generate_requests(
-                    TS_VALID_REQUESTS_WITHOUT_PAYLOAD)))
+                    TS_VALID_REQUESTS_WITH_PAYLOAD)))
     {
         printf("From '%lu' | ERROR: failed to generate requests.\n",
                pthread_self());

@@ -9,7 +9,7 @@
  * either:
  * - a file, from which requests are imported/deserialized
  * (REQUESTS_IMPORT_MODE define);
- * - programming code that generates requests of various format (both
+ * - programming code with ready requests of various format (both
  * valid & invalid) for debugging purposes (REQUESTS_GENERATION_MODE
  * define).
  *
@@ -28,6 +28,6 @@
  * @brief Max. number of worker threads that _simultaneously_ send
  * requests to a compression service.
  */
-#define MAX_SENDERS_NUM 1
+#define MAX_SENDERS_NUM 3
 
 #endif /* TEST_CLIENT_CONFIG */

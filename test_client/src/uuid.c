@@ -7,11 +7,12 @@
 static uint32_t dummy_uuid = 0;
 static pthread_mutex_t mtx = PTHREAD_MUTEX_INITIALIZER;
 
-void get_uuid(uint32_t* uuid)
+uint32_t get_uuid(void)
 {
-    if(NULL == uuid) return;
+    uint32_t ret = 0;
     pthread_mutex_lock(&mtx);
     dummy_uuid++;
-    *uuid = dummy_uuid;
+    ret = dummy_uuid;
     pthread_mutex_unlock(&mtx);
+    return ret;
 }

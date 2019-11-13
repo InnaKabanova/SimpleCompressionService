@@ -9,9 +9,10 @@
 
 #include <errno.h>
 #include <pthread.h>
-#include <sys/syslog.h>
 #include <sys/socket.h>
 #include <arpa/inet.h>
+
+#include <sys/syslog.h>
 
 /**
  * @brief Max. amount of time to wait for new data on a socket before
@@ -101,7 +102,9 @@ void* receive_requests(void* args)
     } while(RECV_TIMEOUT != status && RECV_DONE != status &&
             RECV_FAILED != status && RECV_BAD_ARGS != status);
 
-    syslog(LOG_ERR, "Requests received: %d", requests_received);
+#ifdef SCS_RECEIVER_DBG
+    log_requests_received(requests_received, thread_io->sock_descr);
+#endif
 
     free(thread_io);
 }
@@ -146,8 +149,7 @@ int deserialize_data(scs_internal_request_t* candidate)
     if(NULL == candidate) return 0;
 
     candidate->header.magic_value = ntohl(candidate->header.magic_value);
-    if(REQUEST_MAGIC_VALUE != candidate->header.magic_value)
-        return 0;
+    if(REQUEST_MAGIC_VALUE != candidate->header.magic_value) return 0;
 
     candidate->header.code = ntohs(candidate->header.code);
     candidate->header.uuid = ntohl(candidate->header.uuid);
@@ -161,7 +163,7 @@ int deserialize_data(scs_internal_request_t* candidate)
 
     if(candidate->header.payload_len > 0)
     {
-        void* payload_buff = malloc(candidate->header.payload_len);
+        void* payload_buff = malloc(sizeof(char) * candidate->header.payload_len);
         recv_status_t status = receive_raw_data(candidate->sock_descr,
                                                 payload_buff,
                                                 candidate->header.payload_len);
@@ -169,7 +171,9 @@ int deserialize_data(scs_internal_request_t* candidate)
            REQ_COMPRESS == candidate->header.code &&
            candidate->header.payload_len <= MAX_REQUEST_PAYLOAD_LEN)
         {
-            candidate->payload = (char*)payload_buff;
+            candidate->payload = payload_buff;
+
+            syslog(LOG_DEBUG, "PAYLOAD | %s", candidate->payload);
         }
         else
         {

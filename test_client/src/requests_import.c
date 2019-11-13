@@ -27,7 +27,7 @@ tc_internal_request_t* get_basic_request()
     tc_internal_request_t* new_request =
     (tc_internal_request_t*)malloc(sizeof(tc_internal_request_t));
     new_request->header.magic_value = REQUEST_MAGIC_VALUE;
-    get_uuid(&new_request->header.uuid);
+    new_request->header.uuid = get_uuid();
     new_request->header.payload_len = 0;
     new_request->payload = NULL;
     new_request->next_request = NULL;
