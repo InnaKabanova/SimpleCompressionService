@@ -1,17 +1,17 @@
 #include "queue.h"
 #include "requests_queue.h"
 
-#include <sys/syslog.h>
 #include <stdlib.h>
 #include <time.h>
 
 static int requests_queue_initialized = 0;
 static scs_internal_request_t** requests_buffer = NULL;
 static scs_queue_t requests_queue;
+static pthread_mutex_t initial_mutex = PTHREAD_MUTEX_INITIALIZER;
 
 int init_requests_queue(int size)
 {
-    pthread_mutex_lock(&requests_queue.mutex);
+    pthread_mutex_lock(&initial_mutex);
     if(requests_queue_initialized)
     {
         pthread_mutex_unlock(&requests_queue.mutex);
@@ -31,7 +31,7 @@ int init_requests_queue(int size)
     requests_queue.next_out = 0;
 
     requests_queue_initialized = 1;
-    pthread_mutex_unlock(&requests_queue.mutex);
+    pthread_mutex_unlock(&initial_mutex);
     return 1;
 }
 

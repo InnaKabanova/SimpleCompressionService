@@ -1,4 +1,5 @@
 #include "requests_queue.h"
+#include "responses_queue.h"
 #include "receiver.h"
 #include "processor.h"
 #include "sender.h"
@@ -59,6 +60,7 @@
 #define MIN_SENDERS_PERCENTAGE 1.0
 
 #define REQUESTS_QUEUE_SIZE 50
+#define RESPONSES_QUEUE_SIZE 50
 
 //--------------------------------------------------------------------
 
@@ -273,7 +275,8 @@ int init_networking(int* sock_descr, const char* port_num,
 
 int init_queues(void)
 {
-    return init_requests_queue(REQUESTS_QUEUE_SIZE);
+    return (init_requests_queue(REQUESTS_QUEUE_SIZE) &&
+            init_responses_queue(RESPONSES_QUEUE_SIZE));
 }
 
 void accept_connections(const int sock_descr)

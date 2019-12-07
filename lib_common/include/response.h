@@ -19,10 +19,4 @@ typedef struct response_header
     uint16_t payload_len;
 } response_header_t;
 
-typedef struct response
-{
-    response_header_t header;
-    const char* payload;
-} response_t;
-
 #endif /* SCSCOMMON_RESPONSE_FORMAT */

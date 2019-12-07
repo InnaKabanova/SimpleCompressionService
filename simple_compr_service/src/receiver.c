@@ -12,8 +12,6 @@
 #include <sys/socket.h>
 #include <arpa/inet.h>
 
-#include <sys/syslog.h>
-
 /**
  * @brief Max. amount of time to wait for new data on a socket before
  * considering the connection no longer opened/valid.
@@ -172,8 +170,6 @@ int deserialize_data(scs_internal_request_t* candidate)
            candidate->header.payload_len <= MAX_REQUEST_PAYLOAD_LEN)
         {
             candidate->payload = payload_buff;
-
-            syslog(LOG_DEBUG, "PAYLOAD | %s", candidate->payload);
         }
         else
         {
