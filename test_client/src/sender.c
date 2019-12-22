@@ -27,6 +27,7 @@ void process_chain(test_action_t* test_actions_chain);
 void* send_requests(void* args)
 {
     if(!args) pthread_exit(NULL);
+
     sender_args_t* thread_io = (sender_args_t*)args;
     int* sock_descr = (int*)malloc(sizeof(int));
 
@@ -36,18 +37,19 @@ void* send_requests(void* args)
         printf("From '%lu' | ERROR: failed to connect to the service "
                "'%s' on port '%s'.\n",
                pthread_self(), thread_io->node, thread_io->port_num);
-        free(sock_descr);
         thread_io->exit_status = SND_CONNECTION_ERROR;
-        pthread_exit((void*)(&thread_io->exit_status));
+        goto cleanup_and_exit;
     }
-    if(0 != pthread_setspecific(SOCK_DESCR_KEY, (void*)sock_descr))
+
+    if(0 != pthread_setspecific(SOCK_DESCR_KEY, (const void*)sock_descr))
     {
-        printf("From '%lu' | ERROR: failed to save socket descriptor.\n",
+        printf("From '%lu' | ERROR: failed to save thread-specific "
+               "connection descriptor.\n",
                pthread_self());
-        free(sock_descr);
-        thread_io->exit_status = SND_PTHREAD_ERROR;
-        pthread_exit((void*)(&thread_io->exit_status));
+        thread_io->exit_status = SND_THREAD_ERROR;
+        goto cleanup_and_exit;
     }
+
     printf("From '%lu' | Successfully connected to the service.\n",
            pthread_self());
 
@@ -59,9 +61,13 @@ void* send_requests(void* args)
                "config file '%s'.\n",
                pthread_self(), thread_io->config_path);
         thread_io->exit_status = SND_REQUESTS_OBTAINING_ERROR;
-        pthread_exit((void*)(&thread_io->exit_status));
+        goto cleanup_and_exit;
     }
-    process_chain(requests_chain, sock_descr);
+    else
+    {
+        process_chain(requests_chain, *sock_descr);
+        thread_io->exit_status = SND_SUCCESS;
+    }
 
 #else // REQUESTS_GENERATION_MODE
     test_action_t* tests_chain = NULL;
@@ -71,13 +77,17 @@ void* send_requests(void* args)
         printf("From '%lu' | ERROR: failed to generate requests.\n",
                pthread_self());
         thread_io->exit_status = SND_REQUESTS_OBTAINING_ERROR;
-        pthread_exit((void*)(&thread_io->exit_status));
-    }
-    process_chain(tests_chain);
 
+    }
+    else
+    {
+        process_chain(tests_chain);
+        thread_io->exit_status = SND_SUCCESS;
+    }
 #endif
 
-    thread_io->exit_status = SND_SUCCESS;
+cleanup_and_exit:
+    free(sock_descr);
     pthread_exit((void*)(&thread_io->exit_status));
 }
 

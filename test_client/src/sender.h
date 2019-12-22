@@ -9,7 +9,7 @@ typedef enum sender_exit_status
     SND_BAD_ARGS,
     SND_REQUESTS_OBTAINING_ERROR,
     SND_CONNECTION_ERROR,
-    SND_PTHREAD_ERROR,
+    SND_THREAD_ERROR,
     SND_SUCCESS
 } sender_exit_status_t;
 

@@ -11,7 +11,6 @@
 pthread_key_t SOCK_DESCR_KEY;
 
 static int join_senders(pthread_t* senders_pool, unsigned int num);
-void sock_descr_key_destructor(void* key);
 
 int run_senders(const char* node, const char* port_num)
 {
@@ -19,7 +18,7 @@ int run_senders(const char* node, const char* port_num)
     sender_args_t args_pool[MAX_SENDERS_NUM];
     unsigned int it = 0;
 
-    if(0 != pthread_key_create(&SOCK_DESCR_KEY, &sock_descr_key_destructor))
+    if(0 != pthread_key_create(&SOCK_DESCR_KEY, NULL))
         return 0;
 
 #ifdef REQUESTS_IMPORT_MODE
@@ -67,12 +66,8 @@ int run_senders(const char* node, const char* port_num)
 #endif
 
     join_senders(senders_pool, it);
+    pthread_key_delete(SOCK_DESCR_KEY);
     return 1;
-}
-
-void sock_descr_key_destructor(void* key)
-{
-    free(key);
 }
 
 static int join_senders(pthread_t* senders_pool, unsigned int num)

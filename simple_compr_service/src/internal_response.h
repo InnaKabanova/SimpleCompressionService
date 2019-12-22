@@ -6,7 +6,7 @@
 typedef struct scs_internal_response
 {
     response_header_t header;
-    char* payload;
+    void* result;
     int sock_descr;
 } scs_internal_response_t;
 
