@@ -11,8 +11,6 @@
 
 pthread_key_t SOCK_DESCR_KEY;
 
-// Utility functions:
-
 static sender_result_t* find_last_in_list(sender_result_t* results);
 static int join_senders_concat_results(sender_result_t** results,
                                        pthread_t* senders_pool,
@@ -167,14 +165,15 @@ int run_receivers(sender_result_t* results)
     if(NULL == results) return 0;
 
     pthread_t receivers_pool[MAX_RECEIVERS_NUM];
+
     sender_result_t* curr_result = results;
     int receivers_indx = 0;
 
     do
     {
         int ret = pthread_create(&receivers_pool[receivers_indx], NULL,
-                                 receive_requests,
-                                 (void*)(&results->sock_descr));
+                                 receive_responses,
+                                 (void*)(&curr_result->sock_descr));
         if(0 == ret)
         {
             printf("Created a receiver thread with ID '%lu'.\n",
@@ -194,7 +193,9 @@ int run_receivers(sender_result_t* results)
             receivers_indx = 0;
         }
     }
-    while(curr_result->next != NULL);
+    while(curr_result = curr_result->next, curr_result != NULL);
+    join_receivers(receivers_pool, receivers_indx);
+
     return 1;
 }
 
