@@ -1,4 +1,4 @@
-#include "senders_manager.h"
+#include "workers_manager.h"
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -54,7 +54,14 @@ int main(int argc, char* argv[])
     if(atoi(argv[2]) <= 0)
         exit_with_failure("invalid service port number provided");
 
-    // Run requests-sending jobs:
-    if(0 == run_senders(node, argv[2]))
-        exit_with_failure("failure in sender threads' initialization");
+    // Run requests-sending jobs and try to receive responses:
+    sender_result_t* results = run_senders(node, argv[2]);
+    if(NULL == results)
+        exit_with_failure("failure in running sender threads");
+    if(0 == run_receivers(results))
+    {
+        free(results);
+        exit_with_failure("failure in running receiver threads");
+    }
+    free(results);
 }

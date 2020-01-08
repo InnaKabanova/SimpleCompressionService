@@ -29,25 +29,26 @@ void* send_requests(void* args)
     if(!args) pthread_exit(NULL);
 
     sender_args_t* thread_io = (sender_args_t*)args;
-    int* sock_descr = (int*)malloc(sizeof(int));
 
-    *sock_descr = try_to_connect(thread_io->node, thread_io->port_num);
-    if(-1 == *sock_descr)
+    thread_io->sock_descr = try_to_connect(thread_io->node,
+                                           thread_io->port_num);
+    if(-1 == thread_io->sock_descr)
     {
         printf("From '%lu' | ERROR: failed to connect to the service "
                "'%s' on port '%s'.\n",
                pthread_self(), thread_io->node, thread_io->port_num);
         thread_io->exit_status = SND_CONNECTION_ERROR;
-        goto cleanup_and_exit;
+        goto exit;
     }
 
-    if(0 != pthread_setspecific(SOCK_DESCR_KEY, (const void*)sock_descr))
+    if(0 != pthread_setspecific(SOCK_DESCR_KEY,
+                                (const void*)(&thread_io->sock_descr)))
     {
         printf("From '%lu' | ERROR: failed to save thread-specific "
                "connection descriptor.\n",
                pthread_self());
         thread_io->exit_status = SND_THREAD_ERROR;
-        goto cleanup_and_exit;
+        goto exit;
     }
 
     printf("From '%lu' | Successfully connected to the service.\n",
@@ -60,12 +61,12 @@ void* send_requests(void* args)
         printf("From '%lu' | ERROR: failed to import requests from "
                "config file '%s'.\n",
                pthread_self(), thread_io->config_path);
-        thread_io->exit_status = SND_REQUESTS_OBTAINING_ERROR;
-        goto cleanup_and_exit;
+        thread_io->exit_status = SND_REQUESTS_IMPORT_ERROR;
+        goto exit;
     }
     else
     {
-        process_chain(requests_chain, *sock_descr);
+        process_chain(requests_chain, thread_io->sock_descr);
         thread_io->exit_status = SND_SUCCESS;
     }
 
@@ -76,8 +77,7 @@ void* send_requests(void* args)
     {
         printf("From '%lu' | ERROR: failed to generate requests.\n",
                pthread_self());
-        thread_io->exit_status = SND_REQUESTS_OBTAINING_ERROR;
-
+        thread_io->exit_status = SND_REQUESTS_GENERATION_ERROR;
     }
     else
     {
@@ -86,8 +86,7 @@ void* send_requests(void* args)
     }
 #endif
 
-cleanup_and_exit:
-    free(sock_descr);
+exit:
     pthread_exit((void*)(&thread_io->exit_status));
 }
 

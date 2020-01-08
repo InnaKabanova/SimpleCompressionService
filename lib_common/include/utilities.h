@@ -30,4 +30,20 @@ int print_addrinfo(const struct addrinfo* info, const char* tag,
  */
 int send_all(const int sock_descr, const char* buff, int* buff_size);
 
+typedef enum recv_status
+{
+    RECV_BAD_ARGS = -2,
+    RECV_FAILED = -1,
+    RECV_TIMEOUT = 0,
+    RECV_SUCCESS = 1, // complete package is received
+    RECV_DONE = 2, // client has closed the connection
+} recv_status_t;
+
+/**
+ * @brief Receives 'buff_size' bytes of raw data on 'sock_descr' socket
+ * and writes them to a buffer located by 'buff' address.
+ */
+recv_status_t receive_raw_data(const int sock_descr, void* buff,
+                               const size_t buff_size);
+
 #endif /* LIBCOMMON_UTILITIES */

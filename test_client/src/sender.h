@@ -6,8 +6,12 @@
 
 typedef enum sender_exit_status
 {
+#ifdef REQUESTS_IMPORT_MODE
+    SND_REQUESTS_IMPORT_ERROR,
+#else
+    SND_REQUESTS_GENERATION_ERROR,
+#endif
     SND_BAD_ARGS,
-    SND_REQUESTS_OBTAINING_ERROR,
     SND_CONNECTION_ERROR,
     SND_THREAD_ERROR,
     SND_SUCCESS
@@ -20,6 +24,7 @@ typedef struct sender_args
 #endif
     const char* node;
     const char* port_num;
+    int sock_descr;
     sender_exit_status_t exit_status;
 } sender_args_t;
 

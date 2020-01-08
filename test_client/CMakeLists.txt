@@ -11,8 +11,9 @@ add_executable(
     ${PROJECT_NAME}
     "src/main.c"
     "src/connection.c"
-    "src/senders_manager.c"
+    "src/workers_manager.c"
     "src/sender.c"
+    "src/receiver.c"
     "src/requests_import.c"
     "src/requests_generation.c"
     "src/internal_request.c"
