@@ -11,6 +11,6 @@ typedef enum receiver_exit_status
  * @param[in] args: a socket descriptor for a current valid connection
  * with the server.
  */
-void* receive_requests(void* args);
+void* receive_responses(void* args);
 
 #endif /* TEST_CLIENT_RECEIVER */

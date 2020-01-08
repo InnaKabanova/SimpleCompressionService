@@ -3,13 +3,13 @@
 #include <stdio.h>
 #include <pthread.h>
 
-void* receive_requests(void* args)
+void* receive_responses(void* args)
 {
     if(NULL == args) return NULL;
 
     int* sock_descr = (int*)args;
 
-    printf("From '%lu' | RECEIVE_REQUESTS: '%d'\n",
+    printf("From '%lu' | RECEIVE_RESPONSES: sock_descr: '%d'\n",
            pthread_self(), *sock_descr);
 
     *sock_descr = RECV_SUCCESS;
