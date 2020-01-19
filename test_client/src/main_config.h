@@ -19,7 +19,7 @@
  * is not limited by the implementation.
  */
 
-//#define REQUESTS_IMPORT_MODE
+#define REQUESTS_IMPORT_MODE
 #ifndef REQUESTS_IMPORT_MODE
 #define REQUESTS_GENERATION_MODE
 #endif
@@ -28,7 +28,7 @@
  * @brief Max. number of worker threads that _simultaneously_ send
  * requests to a compression service.
  */
-#define MAX_SENDERS_NUM 3
+#define MAX_SENDERS_NUM 2
 
 /**
  * @brief Max. number of worker threads that _simultaneously_ receive

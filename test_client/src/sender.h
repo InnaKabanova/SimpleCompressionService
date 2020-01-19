@@ -17,6 +17,8 @@ typedef enum sender_exit_status
     SND_SUCCESS
 } sender_exit_status_t;
 
+const char* sender_exit_status_2_str(sender_exit_status_t status);
+
 typedef struct sender_args
 {
 #ifdef REQUESTS_IMPORT_MODE

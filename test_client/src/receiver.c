@@ -3,6 +3,14 @@
 #include <stdio.h>
 #include <pthread.h>
 
+const char* receiver_exit_status_2_str(receiver_exit_status_t status)
+{
+    switch (status)
+    {
+        case RECV_SUCCESS: return "RECV_SUCCESS";
+    }
+}
+
 void* receive_responses(void* args)
 {
     if(NULL == args) return NULL;

@@ -22,15 +22,17 @@
 #define TC_CONFIG_REQUESTS_FILE_CONTENTS
 //--------------------------------------------------------------------
 
-tc_internal_request_t* get_basic_request()
+tc_internal_request_t* create_basic_request()
 {
     tc_internal_request_t* new_request =
     (tc_internal_request_t*)malloc(sizeof(tc_internal_request_t));
+
     new_request->header.magic_value = REQUEST_MAGIC_VALUE;
     new_request->header.uuid = get_uuid();
     new_request->header.payload_len = 0;
     new_request->payload = NULL;
     new_request->next_request = NULL;
+
     return new_request;
 }
 
@@ -63,7 +65,7 @@ tc_internal_request_t* create_request(const char* request_str)
             return NULL;
         else
         {
-            new_request = get_basic_request();
+            new_request = create_basic_request();
             switch(*ptr)
             {
             case '1':
@@ -87,7 +89,7 @@ tc_internal_request_t* create_request(const char* request_str)
             return NULL;
         else
         {
-            new_request = get_basic_request();
+            new_request = create_basic_request();
             new_request->header.code = REQ_COMPRESS;
             // Ignore whitespaces:
             while(' ' == *++ptr);

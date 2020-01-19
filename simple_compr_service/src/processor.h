@@ -2,8 +2,10 @@
 #define SIMPLE_COMPR_SERVICE_PROCESSOR
 
 /**
- * @brief
- * @param[in] args: .
+ * @brief Routine for a worker thread which retrieves one request
+ * at a time from the requests queue and processes it in order to
+ * create a response. The response is then put into the response queue
+ * for further sending.
  */
 void* process_requests(void* args);
 

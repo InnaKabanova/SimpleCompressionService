@@ -24,6 +24,22 @@ void process_chain(tc_internal_request_t* requests_chain,
 void process_chain(test_action_t* test_actions_chain);
 #endif
 
+const char* sender_exit_status_2_str(sender_exit_status_t status)
+{
+    switch (status)
+    {
+    #ifdef REQUESTS_IMPORT_MODE
+        case SND_REQUESTS_IMPORT_ERROR: return "SND_REQUESTS_IMPORT_ERROR";
+    #else // REQUESTS_GENERATION_MODE
+        case SND_REQUESTS_GENERATION_ERROR: return "SND_REQUESTS_GENERATION_ERROR";
+    #endif
+        case SND_BAD_ARGS: return "SND_BAD_ARGS";
+        case SND_CONNECTION_ERROR: return "SND_CONNECTION_ERROR";
+        case SND_THREAD_ERROR: return "SND_THREAD_ERROR";
+        case SND_SUCCESS: return "SND_SUCCESS";
+    }
+}
+
 void* send_requests(void* args)
 {
     if(!args) pthread_exit(NULL);

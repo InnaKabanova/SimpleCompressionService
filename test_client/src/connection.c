@@ -11,7 +11,7 @@
 #include <arpa/inet.h>
 #include <pthread.h>
 
-#define TC_NETWORKING_DBG 1
+// #define TC_NETWORKING_DBG 1
 
 int try_to_connect(const char* node, const char* port_num)
 {

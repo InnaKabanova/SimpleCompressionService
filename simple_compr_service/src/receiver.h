@@ -10,8 +10,9 @@ typedef struct receiver_args
 } receiver_args_t;
 
 /**
- * @brief Worker thread which receives requests from a connected client
- * until the client is done & disconnected or timeout/error occurs.
+ * @brief Routine for a worker thread which receives requests from a
+ * connected client until that client is done & disconnected or
+ * timeout/error occurs.
  * @param[in] args: a receiver_args_t object, where 'thread_id' equals
  * to this thread's id (pthread_self) and 'sock_descr' is a handle for a
  * valid established connection with the client.

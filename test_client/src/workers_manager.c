@@ -127,8 +127,9 @@ static sender_result_t* join_senders(pthread_t* senders_pool,
         int ret = pthread_join(senders_pool[i], &exit_status);
         if(0 == ret && exit_status != NULL)
         {
-            printf("Sender thread '%lu' joined. Exit status: '%d'.\n",
-                   senders_pool[i], *((sender_exit_status_t*)exit_status));
+            printf("Sender thread '%lu' joined. Exit status: '%s'.\n",
+                   senders_pool[i],
+                   sender_exit_status_2_str(*((sender_exit_status_t*)exit_status)));
 
             // If a sender thread did its job successfully,...
             if(SND_SUCCESS == *((sender_exit_status_t*)exit_status))
@@ -210,8 +211,9 @@ static int join_receivers(pthread_t* receivers_pool, unsigned int num)
         int ret = pthread_join(receivers_pool[i], &exit_status);
         if(0 == ret && exit_status != NULL)
         {
-            printf("Receiver thread '%lu' joined. Exit status: '%d'.\n",
-                   receivers_pool[i], *((receiver_exit_status_t*)exit_status));
+            printf("Receiver thread '%lu' joined. Exit status: '%s'.\n",
+                   receivers_pool[i],
+                   receiver_exit_status_2_str(*((receiver_exit_status_t*)exit_status)));
         }
         else
         {

@@ -60,11 +60,8 @@ static void process_req_ping(scs_internal_request_t* request)
 {
     if(NULL == request) return;
 
-    scs_internal_response_t* new_response =
-            (scs_internal_response_t*)malloc(sizeof(scs_internal_response_t));
-    new_response->header.status = RESP_OK;
-
-
+    scs_internal_response_t* new_response = create_basic_response(
+                request->header.uuid, request->sock_descr);
     push_response_blocking(new_response, MAX_PING_RESPONSE_WAITING_TIME_SEC);
 
 }
@@ -72,14 +69,26 @@ static void process_req_ping(scs_internal_request_t* request)
 static void process_req_getstats(scs_internal_request_t* request)
 {
     if(NULL == request) return;
+
+    scs_internal_response_t* new_response = create_basic_response(
+                request->header.uuid, request->sock_descr);
+    push_response_blocking(new_response, MAX_PING_RESPONSE_WAITING_TIME_SEC);
 }
 
 static void process_req_resetstats(scs_internal_request_t* request)
 {
     if(NULL == request) return;
+
+    scs_internal_response_t* new_response = create_basic_response(
+                request->header.uuid, request->sock_descr);
+    push_response_blocking(new_response, MAX_PING_RESPONSE_WAITING_TIME_SEC);
 }
 
 static void process_req_compress(scs_internal_request_t* request)
 {
     if(NULL == request) return;
+
+    scs_internal_response_t* new_response = create_basic_response(
+                request->header.uuid, request->sock_descr);
+    push_response_blocking(new_response, MAX_PING_RESPONSE_WAITING_TIME_SEC);
 }

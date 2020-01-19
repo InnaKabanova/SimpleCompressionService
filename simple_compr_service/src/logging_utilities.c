@@ -36,10 +36,36 @@ void log_requests_received(unsigned int num, int conn_id)
 void log_request(scs_internal_request_t* request)
 {
     if(NULL == request) return;
-    syslog(LOG_DEBUG, "%s | From %lu | mval: %d, uuid: %d, code: %d, plen: %d | PAYLOAD: %s | CONN: %d",
+
+    syslog(LOG_DEBUG, "%s | From %lu | "
+                      "mval: %d, uuid: %d, "
+                      "code: %d, plen: %d | "
+                      "PAYLOAD: %s | "
+                      "CONN: %d",
            SCS_DBG_TAG, pthread_self(),
            request->header.magic_value, request->header.uuid,
            request->header.code, request->header.payload_len,
            request->header.payload_len > 0 && request->payload != NULL ? request->payload : "none",
            request->sock_descr);
+}
+
+void log_response(scs_internal_response_t* response)
+{
+    if(NULL == response) return;
+    syslog(LOG_DEBUG, "%s | From %lu | "
+                      "mval: %d, uuid: %d, "
+                      "status: %d, plen: %d | "
+                      "result: %s | "
+                      "CONN: %d",
+           SCS_DBG_TAG, pthread_self(),
+           response->header.magic_value, response->header.uuid,
+           response->header.status, response->header.payload_len,
+           response->header.payload_len > 0 && response->result != NULL ? (char*)response->result : "none",
+           response->sock_descr);
+}
+
+void log_sending_error(uint32_t uuid)
+{
+    syslog(LOG_DEBUG, "%s | From %lu | Error sending response %d",
+           SCS_DBG_TAG, pthread_self(), uuid);
 }

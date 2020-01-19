@@ -20,6 +20,7 @@ add_executable(
     "src/receiver.c"
     "src/sender.c"
     "src/logging_utilities.c"
+    "src/internal_response.c"
     )
 target_link_libraries(
     ${PROJECT_NAME}

@@ -2,6 +2,7 @@
 #define SIMPLE_COMPR_SERVICE_LOGGING_UTILITIES
 
 #include "internal_request.h"
+#include "internal_response.h"
 
 typedef enum client_connection_result
 {
@@ -21,5 +22,9 @@ void log_conn_result(int conn_id, client_connection_result_t result, ...);
 void log_requests_received(unsigned int num, int conn_id);
 
 void log_request(scs_internal_request_t* request);
+
+void log_response(scs_internal_response_t* response);
+
+void log_sending_error(uint32_t uuid);
 
 #endif /* SIMPLE_COMPR_SERVICE_LOGGING_UTILITIES */

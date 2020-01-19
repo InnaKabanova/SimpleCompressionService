@@ -3,6 +3,8 @@
 
 #include <stdint.h>
 
+#define RESPONSE_MAGIC_VALUE 0x53545265
+
 typedef enum response_status
 {
     RESP_OK = 0,
