@@ -20,9 +20,9 @@ add_executable(
     "src/uuid.c"
     )
 add_compile_options(
-    -O0
-    -Wall
-    -Wextra
+    "-O0"
+    "-Wall"
+    "-Wextra"
     )
 target_link_libraries(
     ${PROJECT_NAME}

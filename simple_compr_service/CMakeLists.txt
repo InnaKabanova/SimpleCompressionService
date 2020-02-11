@@ -8,8 +8,10 @@ link_directories(
     "../../lib_common/build/"
     )
 add_compile_options(
+    "-O0"
     "-Wall"
-)
+    "-Wextra"
+    )
 add_executable(
     ${PROJECT_NAME}
     "src/main.c"

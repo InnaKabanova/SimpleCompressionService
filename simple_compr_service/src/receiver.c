@@ -104,6 +104,7 @@ int deserialize_data(scs_internal_request_t* candidate)
     candidate->header.code = ntohs(candidate->header.code);
     candidate->header.uuid = ntohl(candidate->header.uuid);
     candidate->header.payload_len = ntohs(candidate->header.payload_len);
+    candidate->payload = NULL;
 
     // In the current implementation, payload_len is the main indicator
     // that there is payload data following the request. If request code
