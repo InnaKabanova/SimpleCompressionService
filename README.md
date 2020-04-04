@@ -8,6 +8,7 @@ those strings. The target platform is Linux.
 3. [Compression algorithm](#compr_algorithm)
 4. [Building the components](#building_components)
 5. [Implementation considerations](#impl_considerations)
+6. [QtCreator project configuration](#qtcreator_tips)
 
 ## Request format <a name="request_format"></a>
 Request = header + optional payload.
@@ -73,3 +74,24 @@ Run the 'build.sh' script which is located in the root of the project:
 
 ## Implementation considerations <a name="impl_considerations"></a>
 TODO
+
+## QtCreator project configuration <a name="qtcreator_tips"></a>
+Below I left a quick reminder for myself on how to build/run simple_compression_service and test_client binaries from QtCreator, which is my C/C++ IDE of choice. 
+
+![Build SCS](https://raw.githubusercontent.com/InnaKabanova/SimpleCompressionService/master/qtcreator_tips/scs_build_qtcreator.png)
+![Run SCS](https://raw.githubusercontent.com/InnaKabanova/SimpleCompressionService/master/qtcreator_tips/scs_run_qtcreator.png)
+![Build TC](https://raw.githubusercontent.com/InnaKabanova/SimpleCompressionService/master/qtcreator_tips/tc_build_qtcreator.png)
+![Run TC](https://raw.githubusercontent.com/InnaKabanova/SimpleCompressionService/master/qtcreator_tips/tc_run_qtcreator.png)
+
+If simple_compression_service daemon is already running, it can be attached to with gdb from QtCreator as well: **Debug > Start Debugging > Attach to Running Application...** If you can't attach because of ptrace, the possible solution is described here: https://stackoverflow.com/questions/22120711/qt-creator-ptrace-operation-not-permitted-what-is-the-permanent-solution.  
+
+
+
+
+
+
+
+
+
+
+
