@@ -90,5 +90,12 @@ static void process_req_compress(scs_internal_request_t* request)
 
     scs_internal_response_t* new_response = create_basic_response(
                 request->header.uuid, request->sock_descr);
+    
+//    new_response->header.status = RESP_OK;
+//    new_response->header.payload_len = 0;
+//    new_response->result = NULL;
+    
+    
+    
     push_response_blocking(new_response, MAX_PING_RESPONSE_WAITING_TIME_SEC);
 }

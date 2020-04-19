@@ -23,6 +23,7 @@ add_executable(
     "src/sender.c"
     "src/logging_utilities.c"
     "src/internal_response.c"
+    "src/algo.c"
     )
 target_link_libraries(
     ${PROJECT_NAME}

@@ -4,7 +4,7 @@
 #include <stdint.h>
 
 #define REQUEST_MAGIC_VALUE 0x53545259
-#define MAX_REQUEST_PAYLOAD_LEN (UINT16_MAX / 2)
+#define MAX_REQUEST_PAYLOAD_LEN UINT8_MAX
 
 typedef enum request_code
 {
@@ -22,7 +22,7 @@ typedef struct request_header
     uint32_t magic_value;
     uint32_t uuid;
     uint16_t code;
-    uint16_t payload_len; // 65535
+    uint8_t payload_len;
 } request_header_t;
 
 #endif /* SCSCOMMON_REQUEST_FORMAT */
